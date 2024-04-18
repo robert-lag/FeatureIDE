@@ -78,6 +78,8 @@ public class FeatureModel implements IFeatureModel {
 
 	protected final List<IConstraint> constraints = new ArrayList<>();
 
+	protected final List<IConstraint> visibilityConstraints = new ArrayList<>();
+
 	/**
 	 * A list containing the feature names in their specified order will be initialized in XmlFeatureModelReader.
 	 */
@@ -161,6 +163,18 @@ public class FeatureModel implements IFeatureModel {
 	@Override
 	public void addConstraint(IConstraint constraint, int index) {
 		constraints.add(index, constraint);
+		elements.put(constraint.getInternalId(), constraint);
+	}
+
+	@Override
+	public void addVisibilityConstraint(IConstraint constraint) {
+		visibilityConstraints.add(constraint);
+		elements.put(constraint.getInternalId(), constraint);
+	}
+
+	@Override
+	public void addVisibilityConstraint(IConstraint constraint, int index) {
+		visibilityConstraints.add(index, constraint);
 		elements.put(constraint.getInternalId(), constraint);
 	}
 
@@ -279,12 +293,27 @@ public class FeatureModel implements IFeatureModel {
 	}
 
 	@Override
+	public int getVisibilityConstraintCount() {
+		return visibilityConstraints.size();
+	}
+
+	@Override
 	public int getConstraintIndex(IConstraint constraint) {
 		return constraints.indexOf(constraint);
 	}
 
 	@Override
+	public int getVisibilityConstraintIndex(IConstraint constraint) {
+		return constraints.indexOf(constraint);
+	}
+
+	@Override
 	public List<IConstraint> getConstraints() {
+		return Collections.unmodifiableList(constraints);
+	}
+
+	@Override
+	public List<IConstraint> getVisibilityConstraints() {
 		return Collections.unmodifiableList(constraints);
 	}
 
@@ -394,12 +423,35 @@ public class FeatureModel implements IFeatureModel {
 	}
 
 	@Override
+	public void removeVisibilityConstraint(IConstraint constraint) {
+		visibilityConstraints.remove(constraint);
+		elements.remove(constraint.getInternalId());
+	}
+
+	@Override
+	public void removeVisibilityConstraint(int index) {
+		final IConstraint constraint = visibilityConstraints.remove(index);
+		elements.remove(constraint.getInternalId());
+	}
+
+	@Override
+	public void replaceVisibilityConstraint(IConstraint constraint, int index) {
+		if (constraint == null) {
+			throw new NullPointerException();
+		}
+		elements.remove(visibilityConstraints.get(index).getInternalId());
+		visibilityConstraints.set(index, constraint);
+		elements.put(constraint.getInternalId(), constraint);
+	}
+
+	@Override
 	public void reset() {
 		structure.setRoot(null);
 
 		featureTable.clear();
 		renamingsManager.clear();
 		constraints.clear();
+		visibilityConstraints.clear();
 		featureOrderList.clear();
 		elements.clear();
 
@@ -412,6 +464,14 @@ public class FeatureModel implements IFeatureModel {
 		this.constraints.clear();
 		for (final IConstraint constraint : constraints) {
 			addConstraint(constraint);
+		}
+	}
+
+	@Override
+	public void setVisibilityConstraints(Iterable<IConstraint> constraints) {
+		visibilityConstraints.clear();
+		for (final IConstraint constraint : visibilityConstraints) {
+			addVisibilityConstraint(constraint);
 		}
 	}
 
@@ -463,6 +523,8 @@ public class FeatureModel implements IFeatureModel {
 			FeatureUtils.print(getStructure().getRoot().getFeature(), sb);
 			sb.append("], Constraints=[");
 			print(getConstraints(), sb);
+			sb.append("], VisibilityConstraints=[");
+			print(getVisibilityConstraints(), sb);
 			sb.append("], ");
 		} else {
 			sb.append("Feature model without root feature.");
@@ -532,6 +594,11 @@ public class FeatureModel implements IFeatureModel {
 	}
 
 	@Override
+	public void setVisibilityConstraint(int index, IConstraint constraint) {
+		visibilityConstraints.set(index, constraint);
+	}
+
+	@Override
 	public FeatureModel clone() {
 		return new FeatureModel(this, null);
 	}
@@ -559,6 +626,7 @@ public class FeatureModel implements IFeatureModel {
 		final List<IFeatureModelElement> elements = new ArrayList<>();
 		elements.addAll(getFeatures());
 		elements.addAll(getConstraints());
+		elements.addAll(getVisibilityConstraints());
 
 		for (final IFeatureModelElement element : elements) {
 			if (element.getInternalId() > max) {

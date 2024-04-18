@@ -142,6 +142,8 @@ public interface IFeatureModel extends Cloneable, IEventManager {
 	 */
 	void addConstraint(IConstraint constraint);
 
+	void addVisibilityConstraint(IConstraint constraint);
+
 	/**
 	 * A constraint is an additional restriction on features in the feature model.
 	 *
@@ -168,6 +170,8 @@ public interface IFeatureModel extends Cloneable, IEventManager {
 	 * @since 3.0
 	 */
 	void addConstraint(IConstraint constraint, int index);
+
+	void addVisibilityConstraint(IConstraint constraint, int index);
 
 	/**
 	 * Add a new feature <code>feature</code> to this feature model. If the feature model not contains a feature with the name {@link IFeature#getName()} of
@@ -277,6 +281,8 @@ public interface IFeatureModel extends Cloneable, IEventManager {
 	 */
 	int getConstraintCount();
 
+	int getVisibilityConstraintCount();
+
 	/**
 	 * Returns the index of the first occurrence of <code>constraint</code> in the collection of constraints, or <b>-1</b> if <code>constraint</code> is not
 	 * contained. <br> <br> <b>Note</b>:
@@ -300,6 +306,8 @@ public interface IFeatureModel extends Cloneable, IEventManager {
 	 */
 	int getConstraintIndex(IConstraint constraint);
 
+	int getVisibilityConstraintIndex(IConstraint constraint);
+
 	/**
 	 * Returns the list of constraints stored in this feature model. <br> <br> <b>Note</b>: The returned list should be <b>unmodifiable</b> to avoid external
 	 * access to internal data
@@ -319,6 +327,8 @@ public interface IFeatureModel extends Cloneable, IEventManager {
 	 * @return All constraints stored in this feature model.
 	 */
 	List<IConstraint> getConstraints();
+
+	List<IConstraint> getVisibilityConstraints();
 
 	/**
 	 * Returns the feature with the given <code>name</code> stored in this feature model, or <code>null</code> if no features can be found. The given
@@ -489,6 +499,8 @@ public interface IFeatureModel extends Cloneable, IEventManager {
 	 */
 	void removeConstraint(IConstraint constraint);
 
+	void removeVisibilityConstraint(IConstraint constraint);
+
 	/**
 	 * Removes the constraint at the specified position <code>index</code> in this collection of constraints in this model. When a constraint was removed, the
 	 * remaining constraints to the right are shifted one position to the left.
@@ -509,6 +521,8 @@ public interface IFeatureModel extends Cloneable, IEventManager {
 	 * @since 3.0
 	 */
 	void removeConstraint(int index);
+
+	void removeVisibilityConstraint(int index);
 
 	/**
 	 * Replaces the constraint <code>constraint</code> at the specified position <code>index</code> in the collection of constraints of this feature model.
@@ -533,6 +547,8 @@ public interface IFeatureModel extends Cloneable, IEventManager {
 	 *
 	 */
 	void replaceConstraint(IConstraint constraint, int index);
+
+	void replaceVisibilityConstraint(IConstraint constraint, int index);
 
 	/**
 	 * Set the feature models structure root element to <b>null</b> and clears the collections of features and constraints. Moreover, the feature order list is
@@ -567,6 +583,8 @@ public interface IFeatureModel extends Cloneable, IEventManager {
 	 * @since 3.0
 	 */
 	void setConstraints(final Iterable<IConstraint> constraints);
+
+	void setVisibilityConstraints(final Iterable<IConstraint> constraints);
 
 	/**
 	 * Sets the list of feature names for ordering purposed to the content provided by <code>featureOrderList</code>. Existing ordering will be removed before
@@ -726,6 +744,17 @@ public interface IFeatureModel extends Cloneable, IEventManager {
 	 * @throws IndexOutOfBoundsException if the index is out of range
 	 */
 	void setConstraint(int index, IConstraint constraint);
+
+	/**
+	 * Overwrites the visibility constraint stored in this feature model at position <code>index</code> with the constraint provided by the parameter
+	 * <code>constraint</code>.
+	 *
+	 * @param index index of the visibility constraint to replace
+	 * @param constraint visibility constraint to be stored at the specified position
+	 *
+	 * @throws IndexOutOfBoundsException if the index is out of range
+	 */
+	void setVisibilityConstraint(int index, IConstraint constraint);
 
 	List<IEventListener> getListenerList();
 

@@ -61,6 +61,11 @@ public class MultiFeatureModelFactory implements IFeatureModelFactory {
 	}
 
 	@Override
+	public MultiConstraint createVisibilityConstraint(IFeatureModel featureModel, Node propNode) {
+		return new MultiConstraint(featureModel, propNode);
+	}
+
+	@Override
 	public MultiFeature createFeature(IFeatureModel featureModel, String name) {
 		return new MultiFeature(featureModel, name);
 	}

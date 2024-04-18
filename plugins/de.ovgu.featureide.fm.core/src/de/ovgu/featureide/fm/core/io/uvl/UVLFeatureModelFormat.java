@@ -174,6 +174,7 @@ public class UVLFeatureModelFormat extends AFeatureModelFormat {
 		fm.getStructure().setRoot(rootFeature.getStructure());
 		fm.addAttribute(rootFeature.getName(), NS_ATTRIBUTE_FEATURE, rootModel.getNamespace());
 		parseConstraints(fm);
+		parseVisibilityConstraints(fm);
 
 		// final Map<String, UsedModel> externalModels = fm.getExternalModels();
 	}
@@ -324,6 +325,63 @@ public class UVLFeatureModelFormat extends AFeatureModelFormat {
 			return new org.prop4j.Literal(((LiteralConstraint) constraint).toString(false, "").replace("\"", ""));
 		} else {
 			return null;
+		}
+	}
+
+	private void parseVisibilityConstraints(MultiFeatureModel fm) {
+		final List<Constraint> ownConstraints = rootModel.getOwnVisibilityConstraints();
+		final List<Constraint> allConstraints = new LinkedList<>();
+		for (final Import importLine : rootModel.getImports()) {
+			// only consider submodels from imports that are actually used
+			if (importLine.isReferenced()) {
+				allConstraints.addAll(importLine.getFeatureModel().getVisiblityConstraints());
+			}
+		}
+
+		for (final Constraint constraint : ownConstraints) {
+			parseOwnVisibilityConstraint(fm, constraint);
+		}
+
+		for (final Constraint constraint : allConstraints) {
+			parseVisibilityConstraint(fm, constraint);
+		}
+	}
+
+	private void parseVisibilityConstraint(MultiFeatureModel fm, Constraint c) {
+		parseVisibilityConstraint(fm, c, false);
+	}
+
+	private void parseOwnVisibilityConstraint(MultiFeatureModel fm, Constraint c) {
+		parseVisibilityConstraint(fm, c, true);
+	}
+
+	private void parseVisibilityConstraint(MultiFeatureModel fm, Constraint c, boolean own) {
+		try {
+			final Node constraint = parseVisibilityConstraint(c);
+			if (constraint != null) {
+				final MultiConstraint newConstraint = factory.createVisibilityConstraint(fm, constraint);
+				if (own) {
+					fm.addOwnVisibilityConstraint(newConstraint);
+				} else {
+					newConstraint.setType(MultiFeature.TYPE_INTERFACE);
+					fm.addVisibilityConstraint(newConstraint);
+				}
+			}
+		} catch (final RuntimeException e) {
+			// Contained invalid reference. Already added to problem list
+		}
+	}
+
+	private Node parseVisibilityConstraint(Constraint constraint) {
+		if (constraint instanceof VisibleIfConstraint) {
+			final Constraint leftConstraint = ((VisibleIfConstraint) constraint).getLeft();
+			if (leftNode instanceof LiteralConstraint) {
+				// VisibilityConstraints are saved as implications, where the left operand is the feature, whose visibility is determined
+				final Node leftNode = new org.prop4j.Literal(((LiteralConstraint) leftConstraint).toString(false, "").replace("\"", ""));
+				return new org.prop4j.Implies(leftNode, parseConstraint(((VisibleIfConstraint) constraint).getRight()));
+			} else {
+				return null;
+			}
 		}
 	}
 

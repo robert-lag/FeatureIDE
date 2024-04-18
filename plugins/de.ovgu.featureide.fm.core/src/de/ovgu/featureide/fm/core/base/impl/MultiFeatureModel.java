@@ -119,6 +119,8 @@ public class MultiFeatureModel extends FeatureModel {
 	protected final List<String> imports;
 	protected final List<IConstraint> ownConstraints;
 
+	protected final List<IConstraint> ownVisibilityConstraints;
+
 	protected IFeatureModel mappingModel;
 
 	private boolean isInterface;
@@ -136,6 +138,8 @@ public class MultiFeatureModel extends FeatureModel {
 		imports = new LinkedList<>();
 		ownConstraints = new LinkedList<>();
 
+		ownVisibilityConstraints = new LinkedList<>();
+
 		mappingModel = null;
 		isInterface = false;
 	}
@@ -152,6 +156,8 @@ public class MultiFeatureModel extends FeatureModel {
 		attributeConstraints = new LinkedList<>(extendedFeatureModel.attributeConstraints);
 		imports = new LinkedList<>(extendedFeatureModel.imports);
 		ownConstraints = new LinkedList<>(extendedFeatureModel.ownConstraints);
+
+		ownVisibilityConstraints = new LinkedList<>(extendedFeatureModel.ownVisibilityConstraints);
 
 		mappingModel = extendedFeatureModel.mappingModel;
 
@@ -205,6 +211,31 @@ public class MultiFeatureModel extends FeatureModel {
 	public void addOwnConstraint(final IConstraint constraint) {
 		ownConstraints.add(constraint);
 		constraints.add(constraint);
+	}
+
+	@Override
+	public void addVisibilityConstraint(IConstraint constraint) {
+		if ((constraint instanceof MultiConstraint) && !(((MultiConstraint) constraint).getType() == MultiFeature.TYPE_INTERFACE)) {
+			addOwnVisibilityConstraint(constraint);
+		} else {
+			visibilityConstraints.add(constraint);
+		}
+		elements.put(constraint.getInternalId(), constraint);
+	}
+
+	@Override
+	public void addVisibilityConstraint(IConstraint constraint, int index) {
+		if ((constraint instanceof MultiConstraint) && !(((MultiConstraint) constraint).getType() == MultiFeature.TYPE_INTERFACE)) {
+			addOwnVisibilityConstraint(constraint);
+		} else {
+			visibilityConstraints.add(constraint);
+		}
+		elements.put(constraint.getInternalId(), constraint);
+	}
+
+	public void addOwnVisibilityConstraint(final IConstraint constraint) {
+		ownVisibilityConstraints.add(constraint);
+		visibilityConstraints.add(constraint);
 	}
 
 	/**
@@ -369,6 +400,7 @@ public class MultiFeatureModel extends FeatureModel {
 		usedModels.clear();
 		imports.clear();
 		ownConstraints.clear();
+		ownVisibilityConstraints.clear();
 	}
 
 	/**

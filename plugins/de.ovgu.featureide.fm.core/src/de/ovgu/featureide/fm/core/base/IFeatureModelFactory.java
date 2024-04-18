@@ -37,6 +37,8 @@ public interface IFeatureModelFactory extends IFactory<IFeatureModel> {
 
 	IConstraint createConstraint(IFeatureModel featureModel, Node propNode);
 
+	IConstraint createVisibilityConstraint(IFeatureModel featureModel, Node propNode);
+
 	IFeature createFeature(IFeatureModel featureModel, String name);
 
 	IFeatureModel createObfuscatedFeatureModel(IFeatureModel featureModel, String salt);
