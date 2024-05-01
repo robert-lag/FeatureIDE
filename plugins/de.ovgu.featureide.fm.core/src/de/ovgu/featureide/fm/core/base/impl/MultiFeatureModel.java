@@ -329,6 +329,10 @@ public class MultiFeatureModel extends FeatureModel {
 		return Collections.unmodifiableList(ownConstraints);
 	}
 
+	public List<IConstraint> getOwnVisibilityConstraints() {
+		return Collections.unmodifiableList(ownVisibilityConstraints);
+	}
+
 	public boolean isMultiProductLineModel() {
 		return !usedModels.isEmpty();
 	}

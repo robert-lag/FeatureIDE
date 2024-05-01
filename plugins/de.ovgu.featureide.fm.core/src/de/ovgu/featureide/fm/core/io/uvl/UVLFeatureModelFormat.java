@@ -73,6 +73,7 @@ import de.vill.model.constraint.LiteralConstraint;
 import de.vill.model.constraint.NotConstraint;
 import de.vill.model.constraint.OrConstraint;
 import de.vill.model.constraint.ParenthesisConstraint;
+import de.vill.model.constraint.VisibleIfConstraint;
 
 /**
  * Reads / writes feature models in the UVL format.
@@ -329,20 +330,20 @@ public class UVLFeatureModelFormat extends AFeatureModelFormat {
 	}
 
 	private void parseVisibilityConstraints(MultiFeatureModel fm) {
-		final List<Constraint> ownConstraints = rootModel.getOwnVisibilityConstraints();
-		final List<Constraint> allConstraints = new LinkedList<>();
+		final List<Constraint> ownVisConstraints = rootModel.getOwnVisibilityConstraints();
+		final List<Constraint> allImportedVisConstraints = new LinkedList<>();
 		for (final Import importLine : rootModel.getImports()) {
 			// only consider submodels from imports that are actually used
 			if (importLine.isReferenced()) {
-				allConstraints.addAll(importLine.getFeatureModel().getVisiblityConstraints());
+				allImportedVisConstraints.addAll(importLine.getFeatureModel().getVisibilityConstraints());
 			}
 		}
 
-		for (final Constraint constraint : ownConstraints) {
+		for (final Constraint constraint : ownVisConstraints) {
 			parseOwnVisibilityConstraint(fm, constraint);
 		}
 
-		for (final Constraint constraint : allConstraints) {
+		for (final Constraint constraint : allImportedVisConstraints) {
 			parseVisibilityConstraint(fm, constraint);
 		}
 	}
@@ -359,7 +360,7 @@ public class UVLFeatureModelFormat extends AFeatureModelFormat {
 		try {
 			final Node constraint = parseVisibilityConstraint(c);
 			if (constraint != null) {
-				final MultiConstraint newConstraint = factory.createVisibilityConstraint(fm, constraint);
+				final MultiConstraint newConstraint = factory.createConstraint(fm, constraint);
 				if (own) {
 					fm.addOwnVisibilityConstraint(newConstraint);
 				} else {
@@ -375,14 +376,13 @@ public class UVLFeatureModelFormat extends AFeatureModelFormat {
 	private Node parseVisibilityConstraint(Constraint constraint) {
 		if (constraint instanceof VisibleIfConstraint) {
 			final Constraint leftConstraint = ((VisibleIfConstraint) constraint).getLeft();
-			if (leftNode instanceof LiteralConstraint) {
+			if (leftConstraint instanceof LiteralConstraint) {
 				// VisibilityConstraints are saved as implications, where the left operand is the feature, whose visibility is determined
 				final Node leftNode = new org.prop4j.Literal(((LiteralConstraint) leftConstraint).toString(false, "").replace("\"", ""));
 				return new org.prop4j.Implies(leftNode, parseConstraint(((VisibleIfConstraint) constraint).getRight()));
-			} else {
-				return null;
 			}
 		}
+		return null;
 	}
 
 	private void parseImports(FeatureModel uvlModel, MultiFeatureModel fm) {

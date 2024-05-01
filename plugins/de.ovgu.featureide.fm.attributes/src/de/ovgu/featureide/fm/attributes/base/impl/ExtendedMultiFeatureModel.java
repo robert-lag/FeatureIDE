@@ -86,6 +86,8 @@ public class ExtendedMultiFeatureModel extends MultiFeatureModel implements IExt
 			FeatureUtils.print(getStructure().getRoot().getFeature(), sb);
 			sb.append("], Constraints=[");
 			print(getConstraints(), sb);
+			sb.append("], VisibilityConstraints=[");
+			print(getVisibilityConstraints(), sb);
 			sb.append("], ");
 		} else {
 			sb.append("Feature model without root feature.");

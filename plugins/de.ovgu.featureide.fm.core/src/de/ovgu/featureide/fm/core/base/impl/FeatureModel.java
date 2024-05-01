@@ -304,7 +304,7 @@ public class FeatureModel implements IFeatureModel {
 
 	@Override
 	public int getVisibilityConstraintIndex(IConstraint constraint) {
-		return constraints.indexOf(constraint);
+		return visibilityConstraints.indexOf(constraint);
 	}
 
 	@Override
@@ -314,7 +314,7 @@ public class FeatureModel implements IFeatureModel {
 
 	@Override
 	public List<IConstraint> getVisibilityConstraints() {
-		return Collections.unmodifiableList(constraints);
+		return Collections.unmodifiableList(visibilityConstraints);
 	}
 
 	@Override
