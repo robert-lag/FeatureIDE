@@ -44,6 +44,10 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
+
+import org.prop4j.Implies;
+import org.prop4j.Literal;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.ProjectScope;
@@ -97,6 +101,7 @@ import de.ovgu.featureide.fm.core.analysis.cnf.LiteralSet;
 import de.ovgu.featureide.fm.core.analysis.cnf.Nodes;
 import de.ovgu.featureide.fm.core.analysis.cnf.formula.FeatureModelFormula;
 import de.ovgu.featureide.fm.core.base.FeatureUtils;
+import de.ovgu.featureide.fm.core.base.IConstraint;
 import de.ovgu.featureide.fm.core.base.IFeatureModel;
 import de.ovgu.featureide.fm.core.base.event.FeatureIDEEvent;
 import de.ovgu.featureide.fm.core.base.event.FeatureIDEEvent.EventType;
@@ -128,6 +133,7 @@ import de.ovgu.featureide.fm.ui.editors.featuremodel.GUIBasics;
 import de.ovgu.featureide.fm.ui.properties.FMPropertyManager;
 import de.ovgu.featureide.fm.ui.utils.ISearchable;
 import de.ovgu.featureide.fm.ui.utils.SearchField;
+import de.ovgu.featureide.fm.ui.utils.TreeItemVisibilityWrapper;
 import de.ovgu.featureide.fm.ui.utils.UITreeIterator;
 
 /**
@@ -205,7 +211,7 @@ public abstract class ConfigurationTreeEditorPage extends EditorPart implements 
 	private Label infoLabel;
 	private ToolItem resolveButton;
 
-	protected final LinkedHashMap<SelectableFeature, TreeItem> itemMap = new LinkedHashMap<>();
+	protected final LinkedHashMap<String, TreeItemVisibilityWrapper> itemMap = new LinkedHashMap<>();
 
 	protected final JobToken updateToken = LongRunningWrapper.createToken(JobStartingStrategy.CANCEL_WAIT_ONE);
 
@@ -439,7 +445,9 @@ public abstract class ConfigurationTreeEditorPage extends EditorPart implements 
 
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				expandItems(itemMap.values(), false);
+				expandItems(itemMap.values().stream()
+						.map(TreeItemVisibilityWrapper::getTreeItem)
+						.collect(Collectors.toList()), false);
 				expandRoot();
 			}
 
@@ -455,7 +463,9 @@ public abstract class ConfigurationTreeEditorPage extends EditorPart implements 
 
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				expandItems(itemMap.values(), true);
+				expandItems(itemMap.values().stream()
+						.map(TreeItemVisibilityWrapper::getTreeItem)
+						.collect(Collectors.toList()), true);
 			}
 
 			@Override
@@ -810,7 +820,8 @@ public abstract class ConfigurationTreeEditorPage extends EditorPart implements 
 				if (configurationEditor.isAutoSelectFeatures()) {
 					computeTree(UpdateStrategy.UPDATE);
 				} else {
-					refreshItems(Arrays.asList(item));
+					final TreeItemVisibilityWrapper treeItemVisibilityWrapper = itemMap.get(feature.getName());
+					refreshItems(Arrays.asList(treeItemVisibilityWrapper));
 					if (LongRunningWrapper.runMethod(getPropagator().canBeValid())) {
 						invalidFeatures.clear();
 					} else {
@@ -830,6 +841,15 @@ public abstract class ConfigurationTreeEditorPage extends EditorPart implements 
 		return null;
 	}
 
+	protected List<IConstraint> getVisibilityConstraints() {
+		final FeatureModelManager featureModelManager = configurationEditor.getFeatureModelManager();
+		if (featureModelManager != null) {
+			final IFeatureModel featureModel = featureModelManager.getObject();
+			return featureModel.getVisibilityConstraints();
+		}
+		return null;
+	}
+
 	protected void changeSelection(final TreeItem item, final boolean select) {
 		final Selection manualSelection = ((SelectableFeature) item.getData()).getManual();
 		switch (manualSelection) {
@@ -845,6 +865,8 @@ public abstract class ConfigurationTreeEditorPage extends EditorPart implements 
 		default:
 			throw new AssertionError(manualSelection);
 		}
+
+		updateVisibilityOfAllItems();
 	}
 
 	/**
@@ -866,7 +888,10 @@ public abstract class ConfigurationTreeEditorPage extends EditorPart implements 
 	}
 
 	private Void expandAll(Display display) {
-		display.syncExec(() -> expandItems(itemMap.values(), true));
+		display.syncExec(() -> expandItems(itemMap.values().stream()
+				.map(TreeItemVisibilityWrapper::getTreeItem)
+				.collect(Collectors.toList()), true));
+
 		return null;
 	}
 
@@ -1001,13 +1026,27 @@ public abstract class ConfigurationTreeEditorPage extends EditorPart implements 
 		}
 	}
 
+	protected void updateVisibilityOfAllItems() {
+		List<IConstraint> visibilityConstraints = getVisibilityConstraints();
+		for (IConstraint constraint : visibilityConstraints) {
+			Implies impliesNode = (Implies) constraint.getNode();
+			Literal literalNode = (Literal) impliesNode.getChildren()[0];
+			String literalFeatureName = literalNode.getContainedFeatures().get(0);
+			TreeItemVisibilityWrapper featureTreeItem = itemMap.get(literalFeatureName);
+			if (featureTreeItem != null) {
+				featureTreeItem.setVisible(!featureTreeItem.isVisible());
+			}
+		}
+	}
+
 	protected boolean canDeselectFeatures() {
 		return false;
 	}
 
-	protected void refreshItems(Collection<TreeItem> items) {
+	protected void refreshItems(Collection<TreeItemVisibilityWrapper> itemWrappers) {
 		final Color treeItemStandardColor = GUIBasics.invertColorOnDarkTheme(GUIBasics.createColor(75, 85, 99));
-		for (final TreeItem item : items) {
+		for (final TreeItemVisibilityWrapper itemWrapper : itemWrappers) {
+			final TreeItem item = itemWrapper.getTreeItem();
 			if (!item.isDisposed()) {
 				final Object data = item.getData();
 				if (data instanceof SelectableFeature) {
@@ -1070,6 +1109,7 @@ public abstract class ConfigurationTreeEditorPage extends EditorPart implements 
 					item.setGrayed(grayed);
 					item.setFont(font);
 					item.setImage(getImage(feature, null));
+					itemWrapper.backupChanges();
 				}
 			}
 		}
@@ -1092,12 +1132,12 @@ public abstract class ConfigurationTreeEditorPage extends EditorPart implements 
 	}
 
 	private void updateFeatures(final Display currentDisplay, Collection<SelectableFeature> t) {
-		final ArrayList<TreeItem> items = new ArrayList<>();
+		final ArrayList<TreeItemVisibilityWrapper> items = new ArrayList<>();
 		for (final SelectableFeature feature : t) {
-			final TreeItem item = itemMap.get(feature);
-			if (item != null) {
+			final TreeItemVisibilityWrapper treeItemVisibilityWrapper = itemMap.get(feature.getName());
+			if (treeItemVisibilityWrapper != null) {
 				updateFeatures.remove(feature);
-				items.add(item);
+				items.add(treeItemVisibilityWrapper);
 			}
 		}
 		currentDisplay.asyncExec(() -> refreshItems(items));
@@ -1389,6 +1429,30 @@ public abstract class ConfigurationTreeEditorPage extends EditorPart implements 
 		return null;
 	}
 
+	private TreeItem findTreeItemByName(String name) {
+		TreeItem[] roots = tree.getItems();
+		for (TreeItem root : roots) {
+			TreeItem result = findTreeItemByName(root, name);
+			if (result != null) {
+				return result;
+			}
+		}
+		return null;
+	}
+
+	private TreeItem findTreeItemByName(TreeItem parent, String name) {
+		if (parent.getText().equals(name)) {
+			return parent;
+		}
+		for (TreeItem child : parent.getItems()) {
+			TreeItem result = findTreeItemByName(child, name);
+			if (result != null) {
+				return result;
+			}
+		}
+		return null;
+	}
+
 	public Void build(SelectableFeature rootFeature, final Display currentDisplay) {
 		final LinkedList<TreeItem> parentElements = new LinkedList<>();
 		currentDisplay.syncExec(() -> createRootItem(rootFeature, parentElements));
@@ -1430,23 +1494,33 @@ public abstract class ConfigurationTreeEditorPage extends EditorPart implements 
 			final TreeItem root = new TreeItem(tree, 0);
 			root.setData(rootFeature);
 			parentElements.add(root);
-			itemMap.put(rootFeature, root);
-			refreshItems(Arrays.asList(root));
+
+			TreeItemVisibilityWrapper visibilityTreeItem = new TreeItemVisibilityWrapper(null, root);
+			itemMap.put(rootFeature.getName(), visibilityTreeItem);
+
+			refreshItems(Arrays.asList(visibilityTreeItem));
 		}
 	}
 
 	private void createFeatureItems(List<SelectableFeature> features, TreeItem parent, LinkedList<TreeItem> parentElements) {
 		if (!parent.isDisposed()) {
-			final List<TreeItem> items = new ArrayList<>();
+			final List<TreeItemVisibilityWrapper> items = new ArrayList<>();
 			for (final SelectableFeature currentFeature : features) {
 				// This try for the case that the parent item is already disposed.
+				TreeItem childNode = null;
 				try {
-					final TreeItem childNode = new TreeItem(parent, 0);
+					childNode = new TreeItem(parent, 0);
 					childNode.setData(currentFeature);
-					items.add(childNode);
 					parentElements.add(childNode);
-					itemMap.put(currentFeature, childNode);
-				} catch (final Exception e) {}
+				} catch (final Exception e) { }
+
+				if (childNode != null) {
+					SelectableFeature parentFeature = (SelectableFeature) parent.getData();
+					TreeItemVisibilityWrapper parentVisiblityItem = itemMap.get(parentFeature.getName());
+					TreeItemVisibilityWrapper visibilityTreeItem = new TreeItemVisibilityWrapper(parentVisiblityItem, childNode);
+					itemMap.put(currentFeature.getName(), visibilityTreeItem);
+					items.add(visibilityTreeItem);
+				}
 			}
 			refreshItems(items);
 		}
