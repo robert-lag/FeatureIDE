@@ -295,7 +295,6 @@ public abstract class ConfigurationTreeEditorPage extends EditorPart implements 
 				final FeatureModelAnalyzer fmAnalyzer = persistentFormula.getAnalyzer();
 				if (fmAnalyzer.isValid(null)) {
 					computeTree(UpdateStrategy.BUILD);
-					updateVisibilityOfAllItems();
 				} else {
 					displayError(
 							THE_FEATURE_MODEL_FOR_THIS_PROJECT_IS_VOID_COMMA__I_E__COMMA__THERE_IS_NO_VALID_CONFIGURATION__YOU_NEED_TO_CORRECT_THE_FEATURE_MODEL_BEFORE_YOU_CAN_CREATE_OR_EDIT_CONFIGURATIONS_);
@@ -1509,6 +1508,7 @@ public abstract class ConfigurationTreeEditorPage extends EditorPart implements 
 				}
 			}
 		}
+		currentDisplay.syncExec(() -> updateVisibilityOfAllItems());
 		return null;
 	}
 
