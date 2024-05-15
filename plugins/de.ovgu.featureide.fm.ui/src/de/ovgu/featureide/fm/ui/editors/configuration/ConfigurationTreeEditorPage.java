@@ -42,11 +42,13 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import org.prop4j.Implies;
+import org.prop4j.Node;
 import org.prop4j.Literal;
 
 import org.eclipse.core.resources.IProject;
@@ -293,6 +295,7 @@ public abstract class ConfigurationTreeEditorPage extends EditorPart implements 
 				final FeatureModelAnalyzer fmAnalyzer = persistentFormula.getAnalyzer();
 				if (fmAnalyzer.isValid(null)) {
 					computeTree(UpdateStrategy.BUILD);
+					updateVisibilityOfAllItems();
 				} else {
 					displayError(
 							THE_FEATURE_MODEL_FOR_THIS_PROJECT_IS_VOID_COMMA__I_E__COMMA__THERE_IS_NO_VALID_CONFIGURATION__YOU_NEED_TO_CORRECT_THE_FEATURE_MODEL_BEFORE_YOU_CAN_CREATE_OR_EDIT_CONFIGURATIONS_);
@@ -1029,14 +1032,35 @@ public abstract class ConfigurationTreeEditorPage extends EditorPart implements 
 	protected void updateVisibilityOfAllItems() {
 		List<IConstraint> visibilityConstraints = getVisibilityConstraints();
 		for (IConstraint constraint : visibilityConstraints) {
+			// Get tree item whose visibility should be updated
+			// Visibility constraints are always saved as implication nodes
 			Implies impliesNode = (Implies) constraint.getNode();
 			Literal literalNode = (Literal) impliesNode.getChildren()[0];
 			String literalFeatureName = literalNode.getContainedFeatures().get(0);
 			TreeItemVisibilityWrapper featureTreeItem = itemMap.get(literalFeatureName);
+
+			// Set the visibility
+			Node rightSideOfImplies = impliesNode.getChildren()[1];
+			final Set<Object> keys = rightSideOfImplies.getUniqueVariables();
+			final Map<Object, Boolean> assignment = getCurrentStateOfFeatures(keys);
+			boolean shouldBeVisible = rightSideOfImplies.getValue(assignment);
 			if (featureTreeItem != null) {
-				featureTreeItem.setVisible(!featureTreeItem.isVisible());
+				featureTreeItem.setVisible(shouldBeVisible);
 			}
 		}
+	}
+
+	protected <T> Map<T, Boolean> getCurrentStateOfFeatures(Set<T> featureNames) {
+		final Map<T, Boolean> assignment = new LinkedHashMap<>();
+		for (final T featureName : featureNames) {
+			TreeItemVisibilityWrapper currentTreeItem = itemMap.get(featureName.toString());
+			boolean valueOfItem = false;
+			if (currentTreeItem != null) {
+				valueOfItem = currentTreeItem.getTreeItem().getChecked();
+			}
+			assignment.put(featureName, valueOfItem);
+		}
+		return assignment;
 	}
 
 	protected boolean canDeselectFeatures() {
