@@ -101,6 +101,7 @@ public class DeleteSlicingOperation extends AbstractFeatureModelOperation {
 
 		featureModel.getStructure().setRoot(replacementModel.getStructure().getRoot());
 		featureModel.setConstraints(replacementModel.getConstraints());
+		featureModel.setVisibilityConstraints(replacementModel.getVisibilityConstraints());
 
 		if (featureModel instanceof FeatureModel) {
 			((FeatureModel) featureModel).updateNextElementId();

@@ -69,6 +69,7 @@ public class GraphicalFeatureModel implements IGraphicalFeatureModel {
 
 	protected Map<IFeature, IGraphicalFeature> features = new HashMap<>();
 	protected Map<IConstraint, IGraphicalConstraint> constraints = new HashMap<>();
+	protected Map<IConstraint, IGraphicalConstraint> visibilityConstraints = new HashMap<>();
 
 	protected boolean hiddenLegend = false;
 	protected boolean hiddenConstraints = false;
@@ -219,12 +220,31 @@ public class GraphicalFeatureModel implements IGraphicalFeatureModel {
 	}
 
 	@Override
+	public List<IGraphicalConstraint> getVisibilityConstraints() {
+		final IFeatureModel featureModel = featureModelManager.getSnapshot();
+		final ArrayList<IGraphicalConstraint> constraintList = new ArrayList<>(featureModel.getVisibilityConstraintCount());
+		for (final IConstraint c : featureModel.getVisibilityConstraints()) {
+			constraintList.add(getGraphicalVisibilityConstraint(c));
+		}
+		return constraintList;
+	}
+
+	@Override
 	public List<IGraphicalConstraint> getVisibleConstraints() {
 		final List<IGraphicalConstraint> constraints = new ArrayList<IGraphicalConstraint>();
 		if (hiddenConstraints) {
 			return constraints;
 		}
 		return getNonCollapsedConstraints();
+	}
+
+	@Override
+	public List<IGraphicalConstraint> getVisibleVisibilityConstraints() {
+		final List<IGraphicalConstraint> constraints = new ArrayList<IGraphicalConstraint>();
+		if (hiddenConstraints) {
+			return constraints;
+		}
+		return getNonCollapsedVisibilityConstraints();
 	}
 
 	@Override
@@ -242,11 +262,35 @@ public class GraphicalFeatureModel implements IGraphicalFeatureModel {
 	}
 
 	@Override
+	public List<IGraphicalConstraint> getNonCollapsedVisibilityConstraints() {
+		if (getLayout().showCollapsedConstraints()) {
+			return getVisibilityConstraints();
+		}
+		final List<IGraphicalConstraint> constraints = new ArrayList<IGraphicalConstraint>();
+		for (final IGraphicalConstraint c : getVisibilityConstraints()) {
+			if (!c.isCollapsed()) {
+				constraints.add(c);
+			}
+		}
+		return Collections.unmodifiableList(constraints);
+	}
+
+	@Override
 	public IGraphicalConstraint getGraphicalConstraint(IConstraint constraint) {
 		IGraphicalConstraint graphicalConstraint = constraints.get(constraint);
 		if (graphicalConstraint == null) {
 			graphicalConstraint = new GraphicalConstraint(constraint, this);
 			constraints.put(constraint, graphicalConstraint);
+		}
+		return graphicalConstraint;
+	}
+
+	@Override
+	public IGraphicalConstraint getGraphicalVisibilityConstraint(IConstraint constraint) {
+		IGraphicalConstraint graphicalConstraint = visibilityConstraints.get(constraint);
+		if (graphicalConstraint == null) {
+			graphicalConstraint = new GraphicalConstraint(constraint, this);
+			visibilityConstraints.put(constraint, graphicalConstraint);
 		}
 		return graphicalConstraint;
 	}
@@ -267,23 +311,25 @@ public class GraphicalFeatureModel implements IGraphicalFeatureModel {
 
 	@Override
 	public void init() {
-		final Pair<Map<IFeature, IGraphicalFeature>, Map<IConstraint, IGraphicalConstraint>> mapPair =
-			featureModelManager.processObject(this::initFeaturesAndConstraints);
-		features = mapPair.getKey();
-		constraints = mapPair.getValue();
+		//final Pair<Map<IFeature, IGraphicalFeature>, Map<IConstraint, IGraphicalConstraint>> mapPair =
+			//featureModelManager.processObject(this::initFeaturesAndConstraints);
+		//features = mapPair.getKey();
+		//constraints = mapPair.getValue();
+
+		constraints = featureModelManager.processObject(this::initConstraints);
+		visibilityConstraints = featureModelManager.processObject(this::initVisibilityConstraints);
+		features = featureModelManager.processObject(this::initFeatures);
 		readValues();
 	}
 
 	/**
-	 * Creates two {@link HashMap}s containing {@link GraphicalConstraint}s and {@link GraphicalFeature}s for the given {@link FeatureModel}.
+	 * Creates a {@link HashMap} containing {@link GraphicalConstraint}s for the given {@link FeatureModel}.
 	 *
 	 * @param featureModel FeatureModel from which to get Features and Constraints
-	 * @return Pair of two HashMaps. First HashMap contains Features and their corresponding GraphicalFeatures. Second HashMap contains Constraints and their
-	 *         corresponding GraphicalConstraints.
+	 * @return HashMap containing Constraints and their corresponding GraphicalConstraints.
 	 */
-	private Pair<Map<IFeature, IGraphicalFeature>, Map<IConstraint, IGraphicalConstraint>> initFeaturesAndConstraints(IFeatureModel featureModel) {
+	private Map<IConstraint, IGraphicalConstraint> initConstraints(IFeatureModel featureModel) {
 		Map<IConstraint, IGraphicalConstraint> newConstraints = new HashMap<>();
-		Map<IFeature, IGraphicalFeature> newFeatures = new HashMap<>();
 
 		final IFeatureStructure root = featureModel.getStructure().getRoot();
 		if (root != null) {
@@ -291,14 +337,48 @@ public class GraphicalFeatureModel implements IGraphicalFeatureModel {
 			for (final IConstraint constraint : featureModel.getConstraints()) {
 				newConstraints.put(constraint, new GraphicalConstraint(constraint, this));
 			}
+		}
+		return newConstraints;
+	}
 
-			// Re-create graphical features.
+	/**
+	 * Creates a {@link HashMap} containing {@link GraphicalConstraint}s that determine the visibility of features for
+	 * the given {@link FeatureModel}.
+	 *
+	 * @param featureModel FeatureModel from which to get Features and Constraints
+	 * @return HashMap containing Constraints and their corresponding GraphicalConstraints.
+	 */
+	private Map<IConstraint, IGraphicalConstraint> initVisibilityConstraints(IFeatureModel featureModel) {
+		Map<IConstraint, IGraphicalConstraint> newConstraints = new HashMap<>();
+
+		final IFeatureStructure root = featureModel.getStructure().getRoot();
+		if (root != null) {
+			newConstraints = new HashMap<>((int) (featureModel.getVisibilityConstraintCount() * 1.5));
+			for (final IConstraint constraint : featureModel.getVisibilityConstraints()) {
+				newConstraints.put(constraint, new GraphicalConstraint(constraint, this));
+			}
+		}
+		return newConstraints;
+	}
+
+	/**
+	 * Creates a {@link HashMap} containing {@link GraphicalFeature}s for the given {@link FeatureModel}.
+	 *
+	 * @param featureModel FeatureModel from which to get Features
+	 * @return HashMap containing Features and their corresponding GraphicalFeatures
+	 */
+	private Map<IFeature, IGraphicalFeature> initFeatures(IFeatureModel featureModel) {
+		Map<IFeature, IGraphicalFeature> newFeatures = new HashMap<>();
+
+		final IFeatureStructure root = featureModel.getStructure().getRoot();
+		if (root != null) {
+			// Re-create graphical features
 			newFeatures = new HashMap<>((int) (featureModel.getNumberOfFeatures() * 1.5));
 			for (final IFeature feature : featureModel.getVisibleFeatures()) {
 				newFeatures.put(feature, new GraphicalFeature(feature, this));
 			}
 		}
-		return new Pair<>(newFeatures, newConstraints);
+		return newFeatures;
 	}
 
 	@Override
@@ -331,6 +411,24 @@ public class GraphicalFeatureModel implements IGraphicalFeatureModel {
 		for (int i = 0; i < constraints.size(); i++) {
 			final IGraphicalConstraint gTemp = getGraphicalConstraint(featureModelManager.getSnapshot().getConstraints().get(i));
 			if (gTemp == gConstarint) {
+				return index;
+			}
+
+			if (!gTemp.isCollapsed()) {
+				index++;
+			}
+		}
+		return index;
+	}
+
+	@Override
+	public int getVisibilityConstraintIndex(Constraint constraint) {
+		final IGraphicalConstraint gConstraint = getGraphicalVisibilityConstraint(constraint);
+
+		int index = 0;
+		for (int i = 0; i < constraints.size(); i++) {
+			final IGraphicalConstraint gTemp = getGraphicalVisibilityConstraint(featureModelManager.getSnapshot().getVisibilityConstraints().get(i));
+			if (gTemp == gConstraint) {
 				return index;
 			}
 
@@ -465,6 +563,21 @@ public class GraphicalFeatureModel implements IGraphicalFeatureModel {
 				}
 			}
 		}
+
+		// Manually layout visibility constraints, if required.
+		for (final IGraphicalConstraint visConstr : getVisibilityConstraints()) {
+			final IConstraint visConstraint = visConstr.getObject();
+			if (visConstraint != null) {
+				final IPropertyContainer customProperties = visConstraint.getCustomProperties();
+				if (manualLayout) {
+					final Point location = new Point();
+					final int[] coordinates = convertCoordinatesString(customProperties.get(POSITION, TYPE_GRAPHICS, "0,0"), 2);
+					location.x = coordinates[0];
+					location.y = coordinates[1];
+					visConstr.setLocation(location);
+				}
+			}
+		}
 	}
 
 	private int[] convertCoordinatesString(final String coordinatesString, int dimensions) {
@@ -492,6 +605,9 @@ public class GraphicalFeatureModel implements IGraphicalFeatureModel {
 		for (final IGraphicalConstraint graphicalConstraint : getConstraints()) {
 			writeConstraintInternal(graphicalConstraint);
 		}
+		for (final IGraphicalConstraint graphicalConstraint : getVisibilityConstraints()) {
+			writeVisibilityConstraintInternal(graphicalConstraint);
+		}
 	}
 
 	@Override
@@ -502,6 +618,11 @@ public class GraphicalFeatureModel implements IGraphicalFeatureModel {
 	@Override
 	public void writeConstraint(final IGraphicalConstraint graphicalConstraint) {
 		featureModelManager.editObject(fm -> writeConstraintInternal(graphicalConstraint), FeatureModelManager.CHANGE_GRAPHICS);
+	}
+
+	@Override
+	public void writeVisibilityConstraint(final IGraphicalConstraint graphicalConstraint) {
+		featureModelManager.editObject(fm -> writeVisibilityConstraintInternal(graphicalConstraint), FeatureModelManager.CHANGE_GRAPHICS);
 	}
 
 	@Override
@@ -516,6 +637,10 @@ public class GraphicalFeatureModel implements IGraphicalFeatureModel {
 	}
 
 	private void writeConstraintInternal(final IGraphicalConstraint graphicalConstraint) {
+		writePosition(graphicalConstraint, graphicalConstraint.getObject().getCustomProperties());
+	}
+
+	private void writeVisibilityConstraintInternal(final IGraphicalConstraint graphicalConstraint) {
 		writePosition(graphicalConstraint, graphicalConstraint.getObject().getCustomProperties());
 	}
 

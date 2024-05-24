@@ -118,7 +118,6 @@ public class MultiFeatureModel extends FeatureModel {
 	protected final List<Equation> attributeConstraints;
 	protected final List<String> imports;
 	protected final List<IConstraint> ownConstraints;
-
 	protected final List<IConstraint> ownVisibilityConstraints;
 
 	protected IFeatureModel mappingModel;
@@ -137,7 +136,6 @@ public class MultiFeatureModel extends FeatureModel {
 		attributeConstraints = new LinkedList<>();
 		imports = new LinkedList<>();
 		ownConstraints = new LinkedList<>();
-
 		ownVisibilityConstraints = new LinkedList<>();
 
 		mappingModel = null;
@@ -156,7 +154,6 @@ public class MultiFeatureModel extends FeatureModel {
 		attributeConstraints = new LinkedList<>(extendedFeatureModel.attributeConstraints);
 		imports = new LinkedList<>(extendedFeatureModel.imports);
 		ownConstraints = new LinkedList<>(extendedFeatureModel.ownConstraints);
-
 		ownVisibilityConstraints = new LinkedList<>(extendedFeatureModel.ownVisibilityConstraints);
 
 		mappingModel = extendedFeatureModel.mappingModel;
@@ -396,6 +393,30 @@ public class MultiFeatureModel extends FeatureModel {
 		ownConstraints.remove(constraints.get(index));
 		ownConstraints.add(constraint);
 		super.setConstraint(index, constraint);
+	}
+
+	@Override
+	public void removeVisibilityConstraint(IConstraint constraint) {
+		ownVisibilityConstraints.remove(constraint);
+		super.removeVisibilityConstraint(constraint);
+	}
+
+	@Override
+	public void removeVisibilityConstraint(int index) {
+		ownVisibilityConstraints.remove(constraints.get(index));
+		super.removeVisibilityConstraint(index);
+	}
+
+	@Override
+	public void replaceVisibilityConstraint(IConstraint constraint, int index) {
+		super.replaceVisibilityConstraint(constraint, index);
+	}
+
+	@Override
+	public void setVisibilityConstraint(int index, IConstraint constraint) {
+		ownVisibilityConstraints.remove(visibilityConstraints.get(index));
+		ownVisibilityConstraints.add(constraint);
+		super.setVisibilityConstraint(index, constraint);
 	}
 
 	@Override

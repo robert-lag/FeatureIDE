@@ -135,12 +135,20 @@ public class FeatureModel implements IFeatureModel {
 				for (final IConstraint constraint : oldFeatureModel.constraints) {
 					constraints.add(constraint.clone(this));
 				}
+				for (final IConstraint visConstraint : oldFeatureModel.visibilityConstraints) {
+					visibilityConstraints.add(visConstraint.clone(this));
+				}
 			}
 		} else {
 			structure.setRoot(newRoot.getStructure().cloneSubtree(this));
 			for (final IConstraint constraint : oldFeatureModel.constraints) {
 				if (featureTable.keySet().containsAll(Functional.mapToStringList(constraint.getContainedFeatures()))) {
 					constraints.add(constraint.clone(this));
+				}
+			}
+			for (final IConstraint visConstraint : oldFeatureModel.visibilityConstraints) {
+				if (featureTable.keySet().containsAll(Functional.mapToStringList(visConstraint.getContainedFeatures()))) {
+					visibilityConstraints.add(visConstraint.clone(this));
 				}
 			}
 		}
@@ -468,10 +476,10 @@ public class FeatureModel implements IFeatureModel {
 	}
 
 	@Override
-	public void setVisibilityConstraints(Iterable<IConstraint> constraints) {
-		visibilityConstraints.clear();
-		for (final IConstraint constraint : visibilityConstraints) {
-			addVisibilityConstraint(constraint);
+	public void setVisibilityConstraints(Iterable<IConstraint> visConstraints) {
+		this.visibilityConstraints.clear();
+		for (final IConstraint visConstraint : visConstraints) {
+			addVisibilityConstraint(visConstraint);
 		}
 	}
 
@@ -500,6 +508,9 @@ public class FeatureModel implements IFeatureModel {
 		}
 		for (final IConstraint constraint : constraints) {
 			elements.put(constraint.getInternalId(), constraint);
+		}
+		for (final IConstraint visConstraint : visibilityConstraints) {
+			elements.put(visConstraint.getInternalId(), visConstraint);
 		}
 	}
 

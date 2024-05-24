@@ -80,7 +80,11 @@ public interface IGraphicalFeatureModel extends IGraphicItem, Cloneable {
 
 	List<IGraphicalConstraint> getConstraints();
 
-	IGraphicalConstraint getGraphicalConstraint(IConstraint newFeature);
+	List<IGraphicalConstraint> getVisibilityConstraints();
+
+	IGraphicalConstraint getGraphicalConstraint(IConstraint constraint);
+
+	IGraphicalConstraint getGraphicalVisibilityConstraint(IConstraint constraint);
 
 	IGraphicalFeatureModel clone();
 
@@ -101,6 +105,20 @@ public interface IGraphicalFeatureModel extends IGraphicItem, Cloneable {
 	List<IGraphicalConstraint> getNonCollapsedConstraints();
 
 	/**
+	 * Returns the list of not collapsed constraints stored in this feature model. <br>Note: The returned list should be unmodifiable to avoid external access
+	 * to internal data
+	 *
+	 * @see #getConstraintIndex(Constraint)
+	 * @see #getVisibleConstraints()
+	 * @see #getVisibleFeatures()
+	 *
+	 * @since 3.3
+	 *
+	 * @return All not collapsed constraints stored in this feature model.
+	 */
+	List<IGraphicalConstraint> getNonCollapsedVisibilityConstraints();
+
+	/**
 	 * Returns getNonCollapsedConstraints only if the Constraints are not supposed to be hidden.
 	 *
 	 * @see #getNonCollapsedConstraints()
@@ -108,6 +126,15 @@ public interface IGraphicalFeatureModel extends IGraphicItem, Cloneable {
 	 * @return All not collapsed constraints stored in this feature model that shall be shown in the feature model editor.
 	 */
 	List<IGraphicalConstraint> getVisibleConstraints();
+
+	/**
+	 * Returns getNonCollapsedVisiblityConstraints only if the Constraints are not supposed to be hidden.
+	 *
+	 * @see #getNonCollapsedConstraints()
+	 *
+	 * @return All not collapsed visibility constraints stored in this feature model that shall be shown in the feature model editor.
+	 */
+	List<IGraphicalConstraint> getVisibleVisibilityConstraints();
 
 	/**
 	 * Returns the list of not collapsed features stored in this feature model. <br> <br> Note: The returned list should be unmodifiable to avoid external
@@ -120,18 +147,28 @@ public interface IGraphicalFeatureModel extends IGraphicItem, Cloneable {
 	List<IGraphicalFeature> getVisibleFeatures();
 
 	/**
-	 * return the current index of the constraint. It will olny count constaints that are currently visible.
+	 * return the current index of the constraint. It will only count constaints that are currently visible.
 	 *
 	 * @param constraint constraint to search
 	 * @return index of constraint
 	 */
 	int getConstraintIndex(Constraint constraint);
 
+	/**
+	 * return the current index of the visibility constraint.
+	 *
+	 * @param constraint constraint to search
+	 * @return index of constraint
+	 */
+	int getVisibilityConstraintIndex(Constraint constraint);
+
 	void writeValues();
 
 	void writeFeatureModel();
 
 	void writeConstraint(final IGraphicalConstraint graphicalConstraint);
+
+	void writeVisibilityConstraint(final IGraphicalConstraint graphicalConstraint);
 
 	void writeFeature(final IGraphicalFeature graphicalFeature);
 

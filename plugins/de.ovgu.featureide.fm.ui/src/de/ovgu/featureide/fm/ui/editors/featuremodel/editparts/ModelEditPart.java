@@ -85,13 +85,15 @@ public class ModelEditPart extends AbstractGraphicalEditPart {
 	protected List<Object> getModelChildren() {
 		final IGraphicalFeatureModel fm = getModel();
 
-		final List<IGraphicalConstraint> constraints = fm.getVisibleConstraints();
 		final Collection<IGraphicalFeature> features = fm.getVisibleFeatures();
+		final List<IGraphicalConstraint> constraints = fm.getVisibleConstraints();
+		final List<IGraphicalConstraint> visibilityConstraints = fm.getVisibleVisibilityConstraints();
 
 		final ArrayList<Object> list = new ArrayList<>(constraints.size() + features.size() + 1);
 
 		list.addAll(features);
 		list.addAll(constraints);
+		list.addAll(visibilityConstraints);
 
 		if (!fm.isLegendHidden()) {
 			list.add(fm.getLegend());

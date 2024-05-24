@@ -433,7 +433,8 @@ public class UVLFeatureModelFormat extends AFeatureModelFormat {
 
 		final Feature rootFeature = featureIDEFeatureToUVLFeature(fm.getStructure().getRoot().getFeature());
 		uvlModel.setRootFeature(rootFeature);
-		uvlModel.getOwnConstraints().addAll(featureIDEConstraintsToUVLConstraints(fm));
+		uvlModel.getOwnConstraints().addAll(featureIDEConstraintsToUVLConstraints(fm.getConstraints()));
+		uvlModel.getOwnVisibilityConstraints().addAll(featureIDEConstraintsToUVLConstraints(fm.getVisibilityConstraints()));
 		return uvlModel;
 	}
 
@@ -521,9 +522,9 @@ public class UVLFeatureModelFormat extends AFeatureModelFormat {
 		return properties;
 	}
 
-	private List<Constraint> featureIDEConstraintsToUVLConstraints(IFeatureModel fm) {
+	private List<Constraint> featureIDEConstraintsToUVLConstraints(List<IConstraint> constraints) {
 		final List<Constraint> result = new LinkedList<>();
-		for (final IConstraint constraint : fm.getConstraints()) {
+		for (final IConstraint constraint : constraints) {
 			if ((constraint instanceof MultiConstraint) && (((MultiConstraint) constraint).getType() == MultiFeature.TYPE_INTERFACE)) {
 				continue;
 			}
