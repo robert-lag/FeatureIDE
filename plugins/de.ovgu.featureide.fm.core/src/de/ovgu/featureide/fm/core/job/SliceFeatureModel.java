@@ -126,6 +126,19 @@ public class SliceFeatureModel implements LongRunningMethod<IFeatureModel> {
 		slicedFeatureModel.getStructure().setRoot(root);
 		monitor.step();
 
+		addSlicedConstraints(slicedFeatureModel);
+		addSlicedVisibilityConstraints(slicedFeatureModel);
+
+		if (slicedFeatureModel instanceof FeatureModel) {
+			((FeatureModel) slicedFeatureModel).updateNextElementId();
+		}
+
+		monitor.step();
+
+		return slicedFeatureModel;
+	}
+
+	private void addSlicedConstraints(IFeatureModel slicedFeatureModel) {
 		for (final IConstraint constaint : featureModel.getConstraints()) {
 			final Collection<IFeature> containedFeatures = constaint.getContainedFeatures();
 			boolean containsOnlyRemainingFeatures = !containedFeatures.isEmpty();
@@ -141,14 +154,24 @@ public class SliceFeatureModel implements LongRunningMethod<IFeatureModel> {
 				slicingNecesary = true;
 			}
 		}
+	}
 
-		if (slicedFeatureModel instanceof FeatureModel) {
-			((FeatureModel) slicedFeatureModel).updateNextElementId();
+	private void addSlicedVisibilityConstraints(IFeatureModel slicedFeatureModel) {
+		for (final IConstraint constaint : featureModel.getVisibilityConstraints()) {
+			final Collection<IFeature> containedFeatures = constaint.getContainedFeatures();
+			boolean containsOnlyRemainingFeatures = !containedFeatures.isEmpty();
+			for (final IFeature feature : containedFeatures) {
+				if (!featureNames.contains(feature.getName())) {
+					containsOnlyRemainingFeatures = false;
+					break;
+				}
+			}
+			if (containsOnlyRemainingFeatures) {
+				slicedFeatureModel.addVisibilityConstraint(constaint);
+			} else {
+				slicingNecesary = true;
+			}
 		}
-
-		monitor.step();
-
-		return slicedFeatureModel;
 	}
 
 	private int getGroup(IFeatureStructure f) {

@@ -104,6 +104,11 @@ public class GraphicalFeatureModel implements IGraphicalFeatureModel {
 		for (final Entry<IConstraint, IGraphicalConstraint> constraint : oldModel.constraints.entrySet()) {
 			constraints.put(constraint.getKey(), constraint.getValue().clone());
 		}
+
+		visibilityConstraints = new HashMap<>((int) (oldModel.visibilityConstraints.size() * 1.5));
+		for (final Entry<IConstraint, IGraphicalConstraint> visConstraint : oldModel.visibilityConstraints.entrySet()) {
+			visibilityConstraints.put(visConstraint.getKey(), visConstraint.getValue().clone());
+		}
 	}
 
 	protected void fireEvent(final EventType action) {
@@ -222,11 +227,11 @@ public class GraphicalFeatureModel implements IGraphicalFeatureModel {
 	@Override
 	public List<IGraphicalConstraint> getVisibilityConstraints() {
 		final IFeatureModel featureModel = featureModelManager.getSnapshot();
-		final ArrayList<IGraphicalConstraint> constraintList = new ArrayList<>(featureModel.getVisibilityConstraintCount());
+		final ArrayList<IGraphicalConstraint> visConstraintList = new ArrayList<>(featureModel.getVisibilityConstraintCount());
 		for (final IConstraint c : featureModel.getVisibilityConstraints()) {
-			constraintList.add(getGraphicalVisibilityConstraint(c));
+			visConstraintList.add(getGraphicalVisibilityConstraint(c));
 		}
-		return constraintList;
+		return visConstraintList;
 	}
 
 	@Override

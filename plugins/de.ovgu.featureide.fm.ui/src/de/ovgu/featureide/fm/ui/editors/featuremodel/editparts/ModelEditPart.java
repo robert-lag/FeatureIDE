@@ -89,7 +89,7 @@ public class ModelEditPart extends AbstractGraphicalEditPart {
 		final List<IGraphicalConstraint> constraints = fm.getVisibleConstraints();
 		final List<IGraphicalConstraint> visibilityConstraints = fm.getVisibleVisibilityConstraints();
 
-		final ArrayList<Object> list = new ArrayList<>(constraints.size() + features.size() + 1);
+		final ArrayList<Object> list = new ArrayList<>(constraints.size() + visibilityConstraints.size() + features.size() + 1);
 
 		list.addAll(features);
 		list.addAll(constraints);
