@@ -47,9 +47,9 @@ import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
-import org.prop4j.Implies;
 import org.prop4j.Node;
 import org.prop4j.Literal;
+import org.prop4j.VisibleIf;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.ProjectScope;
@@ -1032,14 +1032,13 @@ public abstract class ConfigurationTreeEditorPage extends EditorPart implements 
 		List<IConstraint> visibilityConstraints = getVisibilityConstraints();
 		for (IConstraint constraint : visibilityConstraints) {
 			// Get tree item whose visibility should be updated
-			// Visibility constraints are always saved as implication nodes
-			Implies impliesNode = (Implies) constraint.getNode();
-			Literal literalNode = (Literal) impliesNode.getChildren()[0];
+			VisibleIf vifNode = (VisibleIf) constraint.getNode();
+			Literal literalNode = (Literal) vifNode.getChildren()[0];
 			String literalFeatureName = literalNode.getContainedFeatures().get(0);
 			TreeItemVisibilityWrapper featureTreeItem = itemMap.get(literalFeatureName);
 
 			// Set the visibility
-			Node rightSideOfImplies = impliesNode.getChildren()[1];
+			Node rightSideOfImplies = vifNode.getChildren()[1];
 			final Set<Object> keys = rightSideOfImplies.getUniqueVariables();
 			final Map<Object, Boolean> assignment = getCurrentStateOfFeatures(keys);
 			boolean shouldBeVisible = rightSideOfImplies.getValue(assignment);

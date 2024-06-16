@@ -36,6 +36,7 @@ import org.prop4j.Equals;
 import org.prop4j.Implies;
 import org.prop4j.Literal;
 import org.prop4j.Node;
+import org.prop4j.VisibleIf;
 
 import de.ovgu.featureide.fm.core.PluginID;
 import de.ovgu.featureide.fm.core.base.IConstraint;
@@ -377,9 +378,9 @@ public class UVLFeatureModelFormat extends AFeatureModelFormat {
 		if (constraint instanceof VisibleIfConstraint) {
 			final Constraint leftConstraint = ((VisibleIfConstraint) constraint).getLeft();
 			if (leftConstraint instanceof LiteralConstraint) {
-				// VisibilityConstraints are saved as implications, where the left operand is the feature, whose visibility is determined
+				// VisibilityConstraints are saved as VisibleIfConstraints, where the left operand is the feature, whose visibility is determined
 				final Node leftNode = new org.prop4j.Literal(((LiteralConstraint) leftConstraint).toString(false, "").replace("\"", ""));
-				return new org.prop4j.Implies(leftNode, parseConstraint(((VisibleIfConstraint) constraint).getRight()));
+				return new org.prop4j.VisibleIf(leftNode, parseConstraint(((VisibleIfConstraint) constraint).getRight()));
 			}
 		}
 		return null;

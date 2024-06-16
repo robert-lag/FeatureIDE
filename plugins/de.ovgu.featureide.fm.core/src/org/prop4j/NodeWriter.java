@@ -75,24 +75,24 @@ public class NodeWriter {
 	 * characters, do not use them for editing or serialization; in these cases, instead use {@link #textualSymbols long} or {@link #shortSymbols short textual
 	 * symbols} respectively.
 	 */
-	public static final String[] logicalSymbols = new String[] { "\u00AC", "\u2227", "\u2228", "\u21D2", "\u21D4", ", ", "choose", "atleast", "atmost" };
+	public static final String[] logicalSymbols = new String[] { "\u00AC", "\u2227", "\u2228", "\u21D2", "\u21D4", ", ", "choose", "atleast", "atmost", "vif" };
 	/**
 	 * Symbols for a long textual representation. These are best used for editing by the user due to simplicity and ease of handling. Use {@link #logicalSymbols
 	 * logical symbols} for displaying to the user and {@link #shortSymbols short textual symbols} for serialization.
 	 */
-	public static final String[] textualSymbols = new String[] { "not", "and", "or", "implies", "iff", ", ", "choose", "atleast", "atmost" };
+	public static final String[] textualSymbols = new String[] { "not", "and", "or", "implies", "iff", ", ", "choose", "atleast", "atmost", "visibleIf" };
 	/**
 	 * Symbols for a short textual representation. Best used for serialization since they fall in the ASCII range but are still relatively short. Use
 	 * {@link #logicalSymbols} for displaying to the user and {@link #textualSymbols long textual symbols} for editing by the user.
 	 */
-	public static final String[] shortSymbols = new String[] { "-", "&", "|", "=>", "<=>", ", ", "choose", "atleast", "atmost" };
+	public static final String[] shortSymbols = new String[] { "-", "&", "|", "=>", "<=>", ", ", "choose", "atleast", "atmost", "vif" };
 	/**
 	 * Symbols for a representation like in Java. These are inherently incomplete and should only be used if absolutely necessary.
 	 */
-	public static final String[] javaSymbols = new String[] { "!", "&&", "||", noSymbol, "==", ", ", noSymbol, noSymbol, noSymbol };
+	public static final String[] javaSymbols = new String[] { "!", "&&", "||", noSymbol, "==", ", ", noSymbol, noSymbol, noSymbol, noSymbol };
 
 	public static final String[] latexSymbols =
-		new String[] { "\\lnot", "\\land", "\\lor", "\\Rightarrow", "\\Leftrightarrow", ", ", "choose", "atleast", "atmost" };
+		new String[] { "\\lnot", "\\land", "\\lor", "\\Rightarrow", "\\Leftrightarrow", ", ", "choose", "atleast", "atmost", "vif" };
 
 	/** The propositional node to convert. */
 	private final Node root;
@@ -415,7 +415,7 @@ public class NodeWriter {
 	 * @return true iff the given operation can be written in infix notation
 	 */
 	protected boolean isInfixCompatibleOperation(Node node) {
-		return (node instanceof And) || (node instanceof Or) || (node instanceof Implies) || (node instanceof Equals);
+		return (node instanceof And) || (node instanceof Or) || (node instanceof Implies) || (node instanceof Equals) || (node instanceof VisibleIf);
 	}
 
 	/**
@@ -439,7 +439,7 @@ public class NodeWriter {
 		if (nodeClass.equals(Equals.class)) {
 			return 2;
 		}
-		if (nodeClass.equals(Implies.class)) {
+		if (nodeClass.equals(Implies.class) || nodeClass.equals(VisibleIf.class)) {
 			return 3;
 		}
 		if (nodeClass.equals(Or.class)) {
@@ -482,6 +482,9 @@ public class NodeWriter {
 		}
 		if (node instanceof AtMost) {
 			return getSymbols()[8] + ((AtMost) node).max;
+		}
+		if (node instanceof VisibleIf) {
+			return getSymbols()[9];
 		}
 		throw new IllegalArgumentException("Unrecognized node type: " + node.getClass());
 	}
