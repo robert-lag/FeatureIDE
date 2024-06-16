@@ -61,9 +61,9 @@ public final class DeleteDialogVerifier {
 		for (final IFeature feature : featuresToDelete) {
 			final List<IConstraint> constraintsToConsider = new LinkedList<>();
 			if (feature.getFeatureModel() instanceof MultiFeatureModel) {
-				constraintsToConsider.addAll(((MultiFeatureModel) feature.getFeatureModel()).getOwnConstraints());
+				constraintsToConsider.addAll(((MultiFeatureModel) feature.getFeatureModel()).getAllOwnConstraints());
 			} else {
-				constraintsToConsider.addAll(feature.getFeatureModel().getConstraints());
+				constraintsToConsider.addAll(feature.getFeatureModel().getAllConstraints());
 			}
 
 			final Collection<IConstraint> relevantConstraints = new LinkedList<>();

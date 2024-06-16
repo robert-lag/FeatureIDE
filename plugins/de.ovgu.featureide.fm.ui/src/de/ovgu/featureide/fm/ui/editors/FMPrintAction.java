@@ -114,6 +114,11 @@ public class FMPrintAction extends PrintAction {
 			final Point newPoint = new Point(c.getLocation().x - minP.x, c.getLocation().y - minP.y);
 			c.setLocation(newPoint);
 		}
+
+		for (final IGraphicalConstraint c : featureModel.getVisibilityConstraints()) {
+			final Point newPoint = new Point(c.getLocation().x - minP.x, c.getLocation().y - minP.y);
+			c.setLocation(newPoint);
+		}
 	}
 
 	private void moveFeatures(Collection<IGraphicalFeature> features, Point minP) {

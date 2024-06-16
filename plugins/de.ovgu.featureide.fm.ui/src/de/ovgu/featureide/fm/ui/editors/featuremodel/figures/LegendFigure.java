@@ -212,7 +212,7 @@ public class LegendFigure extends Figure implements GUIDefaults {
 		}
 
 		// Retrieve visible constraints
-		final List<IGraphicalConstraint> graphicalVisibleConstraints = graphicalFeatureModel.getVisibleConstraints();
+		final List<IGraphicalConstraint> graphicalVisibleConstraints = graphicalFeatureModel.getAllVisibleConstraints();
 		final List<IConstraint> visibleConstraints = new ArrayList<>();
 		for (final IGraphicalConstraint iGraphicalConstraint : graphicalVisibleConstraints) {
 			visibleConstraints.add(iGraphicalConstraint.getObject());

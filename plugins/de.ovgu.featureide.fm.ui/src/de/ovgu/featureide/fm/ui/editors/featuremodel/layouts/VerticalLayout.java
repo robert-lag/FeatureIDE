@@ -59,7 +59,7 @@ public class VerticalLayout extends FeatureDiagramLayoutManager {
 		calculateLevelWidth(root);
 		centerOther(root, 0);
 		final Rectangle rootBounds = getBounds(root);
-		layoutConstraints(height, featureModel.getVisibleConstraints(), rootBounds);
+		layoutConstraints(height, featureModel.getAllVisibleConstraints(), rootBounds);
 	}
 
 	/**

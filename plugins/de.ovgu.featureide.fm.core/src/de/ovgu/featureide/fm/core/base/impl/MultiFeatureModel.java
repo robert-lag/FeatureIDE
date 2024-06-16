@@ -26,6 +26,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 
 import de.ovgu.featureide.fm.core.base.IConstraint;
 import de.ovgu.featureide.fm.core.base.IFeature;
@@ -320,6 +321,12 @@ public class MultiFeatureModel extends FeatureModel {
 
 	public FeatureAttributeMap<String> getStringAttributes() {
 		return stringAttributes;
+	}
+
+	public List<IConstraint> getAllOwnConstraints() {
+		return Collections.unmodifiableList(Stream
+					.concat(getConstraints().stream(), getVisibilityConstraints().stream())
+					.toList());
 	}
 
 	public List<IConstraint> getOwnConstraints() {

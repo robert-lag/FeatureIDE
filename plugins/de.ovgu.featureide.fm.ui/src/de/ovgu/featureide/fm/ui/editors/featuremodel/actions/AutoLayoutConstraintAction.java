@@ -60,6 +60,9 @@ public class AutoLayoutConstraintAction extends Action {
 		for (int i = 0; i < featureModel.getConstraints().size(); i++) {
 			newList.add(featureModel.getConstraints().get(i).getLocation());
 		}
+		for (int i = 0; i < featureModel.getVisibilityConstraints().size(); i++) {
+			newList.add(featureModel.getVisibilityConstraints().get(i).getLocation());
+		}
 		final FeatureModelLayout layout = featureModel.getLayout();
 		layout.setAutoLayoutConstraints(!layout.isAutoLayoutConstraints());
 		if (layout.isAutoLayoutConstraints()) {

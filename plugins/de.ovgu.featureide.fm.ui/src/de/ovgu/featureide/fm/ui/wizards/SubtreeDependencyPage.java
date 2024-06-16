@@ -146,7 +146,7 @@ public class SubtreeDependencyPage extends AbstractWizardPage {
 			f.getObject().fireEvent(new FeatureIDEEvent(this, EventType.ATTRIBUTE_CHANGED, false, true));
 			f.update(FeatureIDEEvent.getDefault(EventType.ATTRIBUTE_CHANGED));
 		}
-		for (final IGraphicalConstraint c : graphicalFeatureModel.getVisibleConstraints()) {
+		for (final IGraphicalConstraint c : graphicalFeatureModel.getAllVisibleConstraints()) {
 			c.getObject().fireEvent(new FeatureIDEEvent(this, EventType.ATTRIBUTE_CHANGED, false, true));
 			c.update(FeatureIDEEvent.getDefault(EventType.ATTRIBUTE_CHANGED));
 		}

@@ -56,9 +56,9 @@ public class ManualLayout extends FeatureDiagramLayoutManager {
 				}
 			}
 
-			layoutConstraints(yoffset, featureModel.getVisibleConstraints(), getBounds(root));
+			layoutConstraints(yoffset, featureModel.getAllVisibleConstraints(), getBounds(root));
 		} else {
-			for (final IGraphicalConstraint constraint : featureModel.getVisibleConstraints()) {
+			for (final IGraphicalConstraint constraint : featureModel.getAllVisibleConstraints()) {
 				constraint.setLocation(constraint.getLocation());
 			}
 		}

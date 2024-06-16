@@ -309,6 +309,26 @@ public interface IFeatureModel extends Cloneable, IEventManager {
 	int getVisibilityConstraintIndex(IConstraint constraint);
 
 	/**
+	 * Returns a list that's a concatenation of getConstraints()
+	 * and getVisibilityConstraints().
+	 *
+	 * @see #addConstraint(IConstraint)
+	 * @see #addConstraint(IConstraint, int)
+	 * @see #getConstraintCount()
+	 * @see #getConstraintIndex(IConstraint)
+	 * @see #removeConstraint(IConstraint)
+	 * @see #removeConstraint(int)
+	 * @see #setConstraint(int, IConstraint)
+	 * @see #setConstraints(Iterable)
+	 * @see #replaceConstraint(IConstraint, int)
+	 *
+	 * @since 3.0
+	 *
+	 * @return All constraints and visibility constraints stored in this feature model.
+	 */
+	List<IConstraint> getAllConstraints();
+
+	/**
 	 * Returns the list of constraints stored in this feature model. <br> <br> <b>Note</b>: The returned list should be <b>unmodifiable</b> to avoid external
 	 * access to internal data
 	 *
@@ -328,6 +348,24 @@ public interface IFeatureModel extends Cloneable, IEventManager {
 	 */
 	List<IConstraint> getConstraints();
 
+	/**
+	 * Returns the list of visibility constraints stored in this feature model. <br> <br> <b>Note</b>: The returned list
+	 * should be <b>unmodifiable</b> to avoid external access to internal data
+	 *
+	 * @see #addConstraint(IConstraint)
+	 * @see #addConstraint(IConstraint, int)
+	 * @see #getConstraintCount()
+	 * @see #getConstraintIndex(IConstraint)
+	 * @see #removeConstraint(IConstraint)
+	 * @see #removeConstraint(int)
+	 * @see #setConstraint(int, IConstraint)
+	 * @see #setConstraints(Iterable)
+	 * @see #replaceConstraint(IConstraint, int)
+	 *
+	 * @since 3.0
+	 *
+	 * @return All visibility constraints stored in this feature model.
+	 */
 	List<IConstraint> getVisibilityConstraints();
 
 	/**

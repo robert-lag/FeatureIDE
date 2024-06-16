@@ -73,7 +73,7 @@ public class ConstraintDragAndDropCommand extends Command {
 	public void execute() {
 
 		int index = calculateNewIndex();
-		final int oldIndex = featureModel.getConstraints().indexOf(constraint);
+		final int oldIndex = featureModel.getAllConstraints().indexOf(constraint);
 		if ((index > oldIndex) && !isLastPos) {
 			index--;
 		}
@@ -87,20 +87,20 @@ public class ConstraintDragAndDropCommand extends Command {
 	}
 
 	private int calculateNewIndex() {
-		for (final IGraphicalConstraint c : featureModel.getConstraints()) {
+		for (final IGraphicalConstraint c : featureModel.getAllConstraints()) {
 			if ((c.getLocation().y + 17) > newLocation.y) {
 				isLastPos = false;
-				return featureModel.getConstraints().indexOf(c);
+				return featureModel.getAllConstraints().indexOf(c);
 			}
 		}
 		isLastPos = true;
-		return featureModel.getConstraints().size() - 1;
+		return featureModel.getAllConstraints().size() - 1;
 	}
 
 	public void setMaxValues() {
 		maxLeft = constraint.getLocation().x;
 		maxUp = constraint.getLocation().y;
-		for (final IGraphicalConstraint c : featureModel.getConstraints()) {
+		for (final IGraphicalConstraint c : featureModel.getAllConstraints()) {
 
 			if (c.getLocation().x < maxLeft) {
 				maxLeft = c.getLocation().x;
@@ -123,7 +123,7 @@ public class ConstraintDragAndDropCommand extends Command {
 	public Point getLeftPoint() {
 		final int index = calculateNewIndex();
 
-		final Point p = new Point(constraint.getLocation().x - 5, featureModel.getConstraints().get(index).getLocation().y);
+		final Point p = new Point(constraint.getLocation().x - 5, featureModel.getAllConstraints().get(index).getLocation().y);
 		if (isLastPos) {
 			p.y = p.y + 17;
 
@@ -135,7 +135,7 @@ public class ConstraintDragAndDropCommand extends Command {
 	public Point getRightPoint() {
 
 		final Point p =
-			new Point(constraint.getLocation().x + constraint.getSize().width + 5, featureModel.getConstraints().get(calculateNewIndex()).getLocation().y);
+			new Point(constraint.getLocation().x + constraint.getSize().width + 5, featureModel.getAllConstraints().get(calculateNewIndex()).getLocation().y);
 		if (isLastPos) {
 			p.y = p.y + 17;
 

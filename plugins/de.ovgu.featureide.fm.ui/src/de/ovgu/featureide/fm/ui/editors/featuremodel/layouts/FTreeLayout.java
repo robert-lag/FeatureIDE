@@ -71,8 +71,7 @@ public class FTreeLayout extends FeatureDiagramLayoutManager {
 		}
 
 		final Rectangle rootBounds = getBounds(root);
-		layoutConstraints((int) treeLayout.getBounds().getMaxY() + 20, featureModel.getVisibleConstraints(), rootBounds);
-
+		layoutConstraints((int) treeLayout.getBounds().getMaxY() + 20, featureModel.getAllVisibleConstraints(), rootBounds);
 	}
 
 	private TreeLayout<IGraphicalFeature> layout(IGraphicalFeature root) {

@@ -60,7 +60,10 @@ public class AutoLayoutConstraintOperation extends AbstractGraphicalFeatureModel
 
 	@Override
 	protected FeatureIDEEvent operation(IFeatureModel featureModel) {
+		// Layout normal and visibility constraints
 		final List<IGraphicalConstraint> constraintList = graphicalFeatureModel.getConstraints();
+		constraintList.addAll(graphicalFeatureModel.getVisibilityConstraints());
+
 		int minX = Integer.MAX_VALUE;
 		int maxX = 0;
 		if (!constraintList.isEmpty()) {
@@ -100,7 +103,10 @@ public class AutoLayoutConstraintOperation extends AbstractGraphicalFeatureModel
 
 	@Override
 	protected FeatureIDEEvent inverseOperation(IFeatureModel featureModel) {
+		// Layout normal and visibility constraints
 		final List<IGraphicalConstraint> constraintList = graphicalFeatureModel.getConstraints();
+		constraintList.addAll(graphicalFeatureModel.getVisibilityConstraints());
+
 		if (!constraintList.isEmpty() && (!(oldPos == null) && !oldPos.isEmpty())) {
 			constraintList.get(0).setLocation(oldPos.get(counter).get(0));
 		}

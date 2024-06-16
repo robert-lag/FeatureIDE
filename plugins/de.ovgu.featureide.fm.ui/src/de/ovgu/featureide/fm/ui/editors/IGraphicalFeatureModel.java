@@ -78,6 +78,8 @@ public interface IGraphicalFeatureModel extends IGraphicItem, Cloneable {
 
 	IGraphicalFeature getGraphicalFeature(IFeature newFeature);
 
+	List<IGraphicalConstraint> getAllConstraints();
+
 	List<IGraphicalConstraint> getConstraints();
 
 	List<IGraphicalConstraint> getVisibilityConstraints();
@@ -117,6 +119,16 @@ public interface IGraphicalFeatureModel extends IGraphicItem, Cloneable {
 	 * @return All not collapsed constraints stored in this feature model.
 	 */
 	List<IGraphicalConstraint> getNonCollapsedVisibilityConstraints();
+
+	/**
+	 * Returns visible constraints and visibility-constraints.
+	 *
+	 * @see #getNonCollapsedConstraints()
+	 *
+	 * @return All not collapsed constraints and visibility-constraints stored in this feature model that shall be shown
+	 * in the feature model editor.
+	 */
+	List<IGraphicalConstraint> getAllVisibleConstraints();
 
 	/**
 	 * Returns getNonCollapsedConstraints only if the Constraints are not supposed to be hidden.

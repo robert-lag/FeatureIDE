@@ -30,6 +30,8 @@ import de.ovgu.featureide.fm.core.base.event.FeatureIDEEvent;
 import de.ovgu.featureide.fm.core.base.event.FeatureIDEEvent.EventType;
 import de.ovgu.featureide.fm.ui.editors.IGraphicalFeatureModel;
 
+import java.lang.*;
+
 /**
  * Operation to move constraints to the new mouse position when manual layout is activated
  *
@@ -43,22 +45,38 @@ public class MoveConstraintToLocationOperation extends AbstractGraphicalFeatureM
 
 	public MoveConstraintToLocationOperation(IGraphicalFeatureModel graphicalFeatureModel, Point newPos, IConstraint constraint) {
 		super(graphicalFeatureModel, MOVE_CONSTRAINT);
-		constraintIndex = featureModelManager.getSnapshot().getConstraintIndex(constraint);
+
+		if (featureModelManager.getSnapshot().getConstraints().contains(constraint)) {
+			constraintIndex = featureModelManager.getSnapshot().getConstraintIndex(constraint);
+		} else {
+			// Add the number of constraints to the index as the visibility constraints are offset by them
+			constraintIndex = featureModelManager.getSnapshot().getVisibilityConstraintIndex(constraint) +
+					featureModelManager.getSnapshot().getConstraints().size();
+		}
 		this.newPos = newPos;
 	}
 
 	@Override
 	protected FeatureIDEEvent operation(IFeatureModel featureModel) {
-		final IConstraint constraint = featureModel.getConstraints().get(constraintIndex);
-		oldPos = graphicalFeatureModel.getGraphicalConstraint(constraint).getLocation();
-		graphicalFeatureModel.getGraphicalConstraint(constraint).setLocation(newPos);
+		final IConstraint constraint = featureModel.getAllConstraints().get(constraintIndex);
+		if (featureModel.getConstraints().contains(constraint)) {
+			oldPos = graphicalFeatureModel.getGraphicalConstraint(constraint).getLocation();
+			graphicalFeatureModel.getGraphicalConstraint(constraint).setLocation(newPos);
+		} else if (featureModel.getVisibilityConstraints().contains(constraint)) {
+			oldPos = graphicalFeatureModel.getGraphicalVisibilityConstraint(constraint).getLocation();
+			graphicalFeatureModel.getGraphicalVisibilityConstraint(constraint).setLocation(newPos);
+		}
 		return new FeatureIDEEvent(constraint, EventType.CONSTRAINT_MOVE_LOCATION, newPos, oldPos);
 	}
 
 	@Override
 	protected FeatureIDEEvent inverseOperation(IFeatureModel featureModel) {
-		final IConstraint constraint = featureModel.getConstraints().get(constraintIndex);
-		graphicalFeatureModel.getGraphicalConstraint(constraint).setLocation(oldPos);
+		final IConstraint constraint = featureModel.getAllConstraints().get(constraintIndex);
+		if (featureModel.getConstraints().contains(constraint)) {
+			graphicalFeatureModel.getGraphicalConstraint(constraint).setLocation(oldPos);
+		} else if (featureModel.getVisibilityConstraints().contains(constraint)) {
+			graphicalFeatureModel.getGraphicalVisibilityConstraint(constraint).setLocation(oldPos);
+		}
 		return new FeatureIDEEvent(constraint, EventType.CONSTRAINT_MOVE_LOCATION, oldPos, newPos);
 	}
 

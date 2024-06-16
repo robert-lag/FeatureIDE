@@ -52,7 +52,7 @@ public class LevelOrderLayout extends FeatureDiagramLayoutManager {
 		final IGraphicalFeature root = FeatureUIHelper.getGraphicalRootFeature(featureModel);
 		layout(root);
 		final Rectangle rootBounds = getBounds(root);
-		layoutConstraints(featureDiagramBottom, featureModel.getVisibleConstraints(), rootBounds);
+		layoutConstraints(featureDiagramBottom, featureModel.getAllVisibleConstraints(), rootBounds);
 	}
 
 	private void layout(IGraphicalFeature root) {

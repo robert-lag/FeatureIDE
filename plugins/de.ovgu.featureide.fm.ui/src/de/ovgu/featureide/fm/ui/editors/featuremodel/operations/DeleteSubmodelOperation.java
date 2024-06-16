@@ -74,7 +74,7 @@ public class DeleteSubmodelOperation extends ElementDeleteOperation {
 						subModelsToDelete.add(((MultiFeatureModel) featureModel).getExternalModel(feature.getName().split("\\.")[0]));
 					}
 				}
-				constraintsToDelete.removeAll(((MultiFeatureModel) featureModel).getOwnConstraints());
+				constraintsToDelete.removeAll(((MultiFeatureModel) featureModel).getAllOwnConstraints());
 			}
 
 			// used models to delete

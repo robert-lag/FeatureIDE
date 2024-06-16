@@ -81,7 +81,7 @@ public class RenamingsManager implements IEventManager, Cloneable {
 		if (!featureTable.containsKey(oldName) || featureTable.containsKey(newName)) {
 			return false;
 		}
-		final List<IConstraint> constraints = model.getConstraints();
+		final List<IConstraint> constraints = model.getAllConstraints();
 		final IFeature feature = model.getFeature(oldName);
 		model.deleteFeatureFromTable(feature);
 		feature.setName(newName);

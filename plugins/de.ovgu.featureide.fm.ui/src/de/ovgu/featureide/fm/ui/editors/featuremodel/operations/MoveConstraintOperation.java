@@ -47,7 +47,7 @@ public class MoveConstraintOperation extends AbstractFeatureModelOperation {
 
 	@Override
 	protected FeatureIDEEvent operation(IFeatureModel featureModel) {
-		final IConstraint constraint = featureModel.getConstraints().get(oldIndex);
+		final IConstraint constraint = featureModel.getAllConstraints().get(oldIndex);
 		featureModel.removeConstraint(oldIndex);
 		featureModel.addConstraint(constraint, newIndex);
 		return new FeatureIDEEvent(constraint, EventType.CONSTRAINT_MOVE, oldIndex, newIndex);
@@ -55,7 +55,7 @@ public class MoveConstraintOperation extends AbstractFeatureModelOperation {
 
 	@Override
 	protected FeatureIDEEvent inverseOperation(IFeatureModel featureModel) {
-		final IConstraint constraint = featureModel.getConstraints().get(newIndex);
+		final IConstraint constraint = featureModel.getAllConstraints().get(newIndex);
 		featureModel.removeConstraint(newIndex);
 		featureModel.addConstraint(constraint, oldIndex);
 		return new FeatureIDEEvent(constraint, EventType.CONSTRAINT_MOVE, newIndex, oldIndex);

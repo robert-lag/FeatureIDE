@@ -304,7 +304,7 @@ abstract public class FeatureDiagramLayoutManager {
 
 		// Add the position next to the featureModel and check for hits with the constraints
 		rects.add(new Rectangle(new Point(max.x + FMPropertyManager.getFeatureSpaceX(), min.y), legendSize));
-		checkIntersections(featureModel.getVisibleConstraints(), rects, featureModel.getLayout().hasVerticalLayout());
+		checkIntersections(featureModel.getAllVisibleConstraints(), rects, featureModel.getLayout().hasVerticalLayout());
 
 		if (rects.size() > 0) {
 			// At this point, rects does only contain positions for the legend that are acceptable. So we take the first
@@ -315,7 +315,7 @@ abstract public class FeatureDiagramLayoutManager {
 
 		// It was not possible to find any empty space, probably there is an intersection with a constraint.
 		// So we position the legend next to the feature model and mind the constraints
-		final Rectangle boundsOfEverything = featureModelBound.getFeatureModelBounds(featureModel.getVisibleConstraints());
+		final Rectangle boundsOfEverything = featureModelBound.getFeatureModelBounds(featureModel.getAllVisibleConstraints());
 		boundsOfEverything.union(featureModelBounds);
 
 		final Point pos = new Point(boundsOfEverything.getTopRight().x + FMPropertyManager.getFeatureSpaceX(), min.y);

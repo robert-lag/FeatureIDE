@@ -93,7 +93,7 @@ public class MovingKeyHandler extends GraphicalViewerKeyHandler {
 			// true if a constraint is selected
 		} else if (part instanceof ConstraintEditPart) {
 			final ConstraintEditPart constraint = (ConstraintEditPart) part;
-			final List<IGraphicalConstraint> graphList = constraint.getModel().getGraphicalModel().getVisibleConstraints();
+			final List<IGraphicalConstraint> graphList = constraint.getModel().getGraphicalModel().getAllVisibleConstraints();
 			final int dex = graphList.indexOf(constraint.getModel());
 			if (event.keyCode == SWT.ARROW_UP) {
 				if (dex > 0) {

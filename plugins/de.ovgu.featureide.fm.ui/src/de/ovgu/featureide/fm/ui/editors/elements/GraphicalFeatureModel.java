@@ -27,6 +27,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.stream.Stream;
 
 import org.eclipse.draw2d.geometry.Point;
 
@@ -215,6 +216,12 @@ public class GraphicalFeatureModel implements IGraphicalFeatureModel {
 	}
 
 	@Override
+	public List<IGraphicalConstraint> getAllConstraints() {
+		return Stream.concat(getConstraints().stream(), getVisibilityConstraints().stream())
+				.toList();
+	}
+
+	@Override
 	public List<IGraphicalConstraint> getConstraints() {
 		final IFeatureModel featureModel = featureModelManager.getSnapshot();
 		final ArrayList<IGraphicalConstraint> constraintList = new ArrayList<>(featureModel.getConstraintCount());
@@ -232,6 +239,11 @@ public class GraphicalFeatureModel implements IGraphicalFeatureModel {
 			visConstraintList.add(getGraphicalVisibilityConstraint(c));
 		}
 		return visConstraintList;
+	}
+
+	public List<IGraphicalConstraint> getAllVisibleConstraints() {
+		return Stream.concat(getVisibleConstraints().stream(), getVisibleVisibilityConstraints().stream())
+				.toList();
 	}
 
 	@Override
@@ -316,11 +328,6 @@ public class GraphicalFeatureModel implements IGraphicalFeatureModel {
 
 	@Override
 	public void init() {
-		//final Pair<Map<IFeature, IGraphicalFeature>, Map<IConstraint, IGraphicalConstraint>> mapPair =
-			//featureModelManager.processObject(this::initFeaturesAndConstraints);
-		//features = mapPair.getKey();
-		//constraints = mapPair.getValue();
-
 		constraints = featureModelManager.processObject(this::initConstraints);
 		visibilityConstraints = featureModelManager.processObject(this::initVisibilityConstraints);
 		features = featureModelManager.processObject(this::initFeatures);
@@ -410,12 +417,12 @@ public class GraphicalFeatureModel implements IGraphicalFeatureModel {
 
 	@Override
 	public int getConstraintIndex(Constraint constraint) {
-		final IGraphicalConstraint gConstarint = getGraphicalConstraint(constraint);
+		final IGraphicalConstraint gConstraint = getGraphicalConstraint(constraint);
 
 		int index = 0;
 		for (int i = 0; i < constraints.size(); i++) {
 			final IGraphicalConstraint gTemp = getGraphicalConstraint(featureModelManager.getSnapshot().getConstraints().get(i));
-			if (gTemp == gConstarint) {
+			if (gTemp == gConstraint) {
 				return index;
 			}
 
@@ -431,7 +438,7 @@ public class GraphicalFeatureModel implements IGraphicalFeatureModel {
 		final IGraphicalConstraint gConstraint = getGraphicalVisibilityConstraint(constraint);
 
 		int index = 0;
-		for (int i = 0; i < constraints.size(); i++) {
+		for (int i = 0; i < visibilityConstraints.size(); i++) {
 			final IGraphicalConstraint gTemp = getGraphicalVisibilityConstraint(featureModelManager.getSnapshot().getVisibilityConstraints().get(i));
 			if (gTemp == gConstraint) {
 				return index;

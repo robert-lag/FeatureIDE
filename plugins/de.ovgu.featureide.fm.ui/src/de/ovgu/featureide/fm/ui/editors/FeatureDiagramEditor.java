@@ -600,7 +600,11 @@ public class FeatureDiagramEditor extends FeatureModelEditorPage implements GUID
 						f.getObject().fireEvent(new FeatureIDEEvent(this, EventType.ATTRIBUTE_CHANGED, false, true));
 						f.update(FeatureIDEEvent.getDefault(EventType.ATTRIBUTE_CHANGED));
 					}
-					for (final IGraphicalConstraint c : graphicalFeatureModel.getVisibleConstraints()) {
+					for (final IGraphicalConstraint c : graphicalFeatureModel.getAllVisibleConstraints()) {
+						c.getObject().fireEvent(new FeatureIDEEvent(this, EventType.ATTRIBUTE_CHANGED, false, true));
+						c.update(FeatureIDEEvent.getDefault(EventType.ATTRIBUTE_CHANGED));
+					}
+					for (final IGraphicalConstraint c : graphicalFeatureModel.getVisibleVisibilityConstraints()) {
 						c.getObject().fireEvent(new FeatureIDEEvent(this, EventType.ATTRIBUTE_CHANGED, false, true));
 						c.update(FeatureIDEEvent.getDefault(EventType.ATTRIBUTE_CHANGED));
 					}
@@ -1051,7 +1055,7 @@ public class FeatureDiagramEditor extends FeatureModelEditorPage implements GUID
 								}
 							}
 						} else if (element.getObject() instanceof IConstraint) {
-							if (graphicalFeatureModel.getVisibleConstraints()
+							if (graphicalFeatureModel.getAllVisibleConstraints()
 									.contains(graphicalFeatureModel.getGraphicalConstraint((IConstraint) element.getObject()))) {
 								if (updatedElements.add(element)) {
 									element.update(event);
@@ -1075,7 +1079,7 @@ public class FeatureDiagramEditor extends FeatureModelEditorPage implements GUID
 								element.update(new FeatureIDEEvent(source, EventType.ACTIVE_REASON_CHANGED, null, reason));
 							}
 						} else if (element.getObject() instanceof IConstraint) {
-							if (graphicalFeatureModel.getVisibleConstraints()
+							if (graphicalFeatureModel.getAllVisibleConstraints()
 									.contains(graphicalFeatureModel.getGraphicalConstraint((IConstraint) element.getObject()))) {
 								element.update(new FeatureIDEEvent(source, EventType.ACTIVE_REASON_CHANGED, null, reason));
 							}

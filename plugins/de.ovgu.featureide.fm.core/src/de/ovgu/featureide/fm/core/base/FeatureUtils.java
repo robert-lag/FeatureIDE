@@ -360,6 +360,7 @@ public final class FeatureUtils {
 		requireNonNull(featureModel);
 		requireNonNull(constraint);
 
+
 		final List<IConstraint> constraints = featureModel.getConstraints();
 		for (int i = 0; i < constraints.size(); i++) {
 			if (constraints.get(i).equals(constraint)) {
