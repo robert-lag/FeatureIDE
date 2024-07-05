@@ -30,6 +30,10 @@ public interface IFeatureModelLayout {
 
 	public void showConstraints(boolean b);
 
+	public boolean showVisibilityConstraints();
+
+	public void showVisibilityConstraints(boolean b);
+
 	public boolean showCollapsedConstraints();
 
 	public void showCollapsedConstraints(boolean b);

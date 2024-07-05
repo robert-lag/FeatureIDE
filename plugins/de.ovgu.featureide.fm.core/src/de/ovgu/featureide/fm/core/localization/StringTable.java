@@ -1187,5 +1187,6 @@ public class StringTable {
 	public static final String SHA_256_DIGEST_ALGORITHM = "SHA-256";
 	public static final String DELETE_SUBMODEL = "Delete Submodel";
 	public static final String SHOW_CONSTRAINTS = "Show Constraints";
+	public static final String SHOW_VISIBILITY_CONSTRAINTS = "Show Visibility Constraints";
 	public static final String FEATURE_MODELING_COMPOSER_NAME = "Feature Modeling";
 }

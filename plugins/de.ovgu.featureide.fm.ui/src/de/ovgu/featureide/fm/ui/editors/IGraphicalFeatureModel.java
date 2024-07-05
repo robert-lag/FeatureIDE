@@ -58,7 +58,11 @@ public interface IGraphicalFeatureModel extends IGraphicItem, Cloneable {
 
 	void setConstraintsHidden(boolean hideConstraints);
 
+	void setVisibilityConstraintsHidden(boolean hideVisConstraints);
+
 	boolean getConstraintsHidden();
+
+	boolean getVisibilityConstraintsHidden();
 
 	void handleLegendLayoutChanged();
 

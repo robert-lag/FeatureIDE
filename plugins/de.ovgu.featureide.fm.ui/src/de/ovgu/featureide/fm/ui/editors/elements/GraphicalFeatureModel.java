@@ -74,6 +74,7 @@ public class GraphicalFeatureModel implements IGraphicalFeatureModel {
 
 	protected boolean hiddenLegend = false;
 	protected boolean hiddenConstraints = false;
+	protected boolean hiddenVisConstraints = false;
 	protected Legend legend;
 
 	/**
@@ -162,8 +163,18 @@ public class GraphicalFeatureModel implements IGraphicalFeatureModel {
 	}
 
 	@Override
+	public void setVisibilityConstraintsHidden(boolean hideVisConstraints) {
+		hiddenVisConstraints = hideVisConstraints;
+	}
+
+	@Override
 	public boolean getConstraintsHidden() {
 		return hiddenConstraints;
+	}
+
+	@Override
+	public boolean getVisibilityConstraintsHidden() {
+		return hiddenVisConstraints;
 	}
 
 	@Override
@@ -258,7 +269,7 @@ public class GraphicalFeatureModel implements IGraphicalFeatureModel {
 	@Override
 	public List<IGraphicalConstraint> getVisibleVisibilityConstraints() {
 		final List<IGraphicalConstraint> constraints = new ArrayList<IGraphicalConstraint>();
-		if (hiddenConstraints) {
+		if (hiddenConstraints || hiddenVisConstraints) {
 			return constraints;
 		}
 		return getNonCollapsedVisibilityConstraints();
@@ -463,6 +474,7 @@ public class GraphicalFeatureModel implements IGraphicalFeatureModel {
 
 	private static final String LAYOUT_ALGORITHM = "layoutalgorithm";
 	private static final String SHOW_CONSTRAINTS = "showconstraints";
+	private static final String SHOW_VISIBILITY_CONSTRAINTS = "showvisibilityconstraints";
 	private static final String SHOW_COLLAPSED_CONSTRAINTS = "showcollapsedconstraints";
 	private static final String SHOW_SHORT_NAMES = "showshortnames";
 	private static final String LEGEND_AUTO_LAYOUT = "legendautolayout";
@@ -512,6 +524,10 @@ public class GraphicalFeatureModel implements IGraphicalFeatureModel {
 		// Configure whether the constraints should be shown beneath the feature model
 		final Boolean showConstraints = FeatureModelProperty.getBooleanProperty(fm.getProperty(), TYPE_GRAPHICS, SHOW_CONSTRAINTS);
 		setConstraintsHidden(showConstraints != null ? !showConstraints : false);
+
+		// Configure whether the visibility constraints should be shown in the list of constraints
+		final Boolean showVisConstraints = FeatureModelProperty.getBooleanProperty(fm.getProperty(), TYPE_GRAPHICS, SHOW_VISIBILITY_CONSTRAINTS);
+		setVisibilityConstraintsHidden(showVisConstraints != null ? !showVisConstraints : false);
 
 		// Configure whether auto layout constraints is activated
 		final Boolean autoLayoutConstraints = FeatureModelProperty.getBooleanProperty(fm.getProperty(), TYPE_GRAPHICS, AUTO_LAYOUT_CONSTRAINTS);
@@ -685,6 +701,11 @@ public class GraphicalFeatureModel implements IGraphicalFeatureModel {
 			fm.getProperty().set(SHOW_CONSTRAINTS, TYPE_GRAPHICS, FeatureModelProperty.VALUE_BOOLEAN_TRUE);
 		} else {
 			fm.getProperty().set(SHOW_CONSTRAINTS, TYPE_GRAPHICS, FeatureModelProperty.VALUE_BOOLEAN_FALSE);
+		}
+		if (getLayout().showVisibilityConstraints()) {
+			fm.getProperty().set(SHOW_VISIBILITY_CONSTRAINTS, TYPE_GRAPHICS, FeatureModelProperty.VALUE_BOOLEAN_TRUE);
+		} else {
+			fm.getProperty().set(SHOW_VISIBILITY_CONSTRAINTS, TYPE_GRAPHICS, FeatureModelProperty.VALUE_BOOLEAN_FALSE);
 		}
 		if (getLayout().showCollapsedConstraints()) {
 			fm.getProperty().set(SHOW_COLLAPSED_CONSTRAINTS, TYPE_GRAPHICS, FeatureModelProperty.VALUE_BOOLEAN_TRUE);

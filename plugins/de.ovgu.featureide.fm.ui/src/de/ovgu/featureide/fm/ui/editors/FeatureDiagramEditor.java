@@ -158,6 +158,7 @@ import de.ovgu.featureide.fm.ui.editors.featuremodel.actions.SelectSubtreeAction
 import de.ovgu.featureide.fm.ui.editors.featuremodel.actions.SelectionAction;
 import de.ovgu.featureide.fm.ui.editors.featuremodel.actions.ShowCollapsedConstraintsAction;
 import de.ovgu.featureide.fm.ui.editors.featuremodel.actions.ShowConstraintsAction;
+import de.ovgu.featureide.fm.ui.editors.featuremodel.actions.ShowVisibilityConstraintsAction;
 import de.ovgu.featureide.fm.ui.editors.featuremodel.actions.calculations.AutomatedCalculationsAction;
 import de.ovgu.featureide.fm.ui.editors.featuremodel.actions.calculations.ConstraintsCalculationsAction;
 import de.ovgu.featureide.fm.ui.editors.featuremodel.actions.calculations.FeaturesOnlyCalculationAction;
@@ -228,6 +229,7 @@ public class FeatureDiagramEditor extends FeatureModelEditorPage implements GUID
 	private MoveAction moveLeftAction;
 
 	private ShowConstraintsAction showConstraintsAction;
+	private ShowVisibilityConstraintsAction showVisibilityConstraintsAction;
 	private ShowCollapsedConstraintsAction showCollapsedConstraintsAction;
 
 	private ZoomInAction zoomIn;
@@ -353,6 +355,7 @@ public class FeatureDiagramEditor extends FeatureModelEditorPage implements GUID
 
 		// Layout actions
 		showConstraintsAction = addAction(new ShowConstraintsAction(viewer, graphicalFeatureModel));
+		showVisibilityConstraintsAction = addAction(new ShowVisibilityConstraintsAction(viewer, graphicalFeatureModel));
 		autoLayoutConstraintAction = addAction(new AutoLayoutConstraintAction(viewer, graphicalFeatureModel));
 		setLayoutActions = new ArrayList<>(FeatureDiagramLayoutHelper.NUMBER_OF_LAYOUT_ALGORITHMS);
 		for (int i = 0; i < FeatureDiagramLayoutHelper.NUMBER_OF_LAYOUT_ALGORITHMS; i++) {
@@ -1430,8 +1433,10 @@ public class FeatureDiagramEditor extends FeatureModelEditorPage implements GUID
 			menuManager.add(reverseOrderAction);
 			menuManager.add(showConstraintsAction);
 			showConstraintsAction.setChecked(!graphicalFeatureModel.getConstraintsHidden());
-			// only show the "Show Collapsed Constraints"-entry when the constraints are visible in the diagram editor
+			// only show the "Show Collapsed Constraints"- and "ShowVisibility Constraints"-entries when the constraints are visible in the diagram editor
 			if (!graphicalFeatureModel.getConstraintsHidden()) {
+				menuManager.add(showVisibilityConstraintsAction);
+				showVisibilityConstraintsAction.setChecked(!graphicalFeatureModel.getVisibilityConstraintsHidden());
 				menuManager.add(showCollapsedConstraintsAction);
 			}
 			menuManager.add(new Separator());
