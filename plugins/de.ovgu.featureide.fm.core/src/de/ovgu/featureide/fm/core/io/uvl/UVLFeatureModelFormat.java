@@ -108,6 +108,7 @@ public class UVLFeatureModelFormat extends AFeatureModelFormat {
 		tempMap.put(OrConstraint.class, 3);
 		tempMap.put(ImplicationConstraint.class, 4);
 		tempMap.put(EquivalenceConstraint.class, 5);
+		tempMap.put(VisibleIfConstraint.class, 6);
 		prioritiy = Collections.unmodifiableMap(tempMap);
 	}
 
@@ -568,6 +569,16 @@ public class UVLFeatureModelFormat extends AFeatureModelFormat {
 				child2 = new ParenthesisConstraint(child2);
 			}
 			return new EquivalenceConstraint(child1, child2);
+		} else if (n instanceof VisibleIf) {
+			Constraint child1 = featureIDEConstraintToUVLConstraint(n.getChildren()[0]);
+			Constraint child2 = featureIDEConstraintToUVLConstraint(n.getChildren()[1]);
+			if (prioritiy.get(child1.getClass()) > prioritiy.get(VisibleIfConstraint.class)) {
+				child1 = new ParenthesisConstraint(child1);
+			}
+			if (prioritiy.get(child2.getClass()) > prioritiy.get(VisibleIfConstraint.class)) {
+				child2 = new ParenthesisConstraint(child2);
+			}
+			return new VisibleIfConstraint(child1, child2);
 		}
 		return null;
 	}
