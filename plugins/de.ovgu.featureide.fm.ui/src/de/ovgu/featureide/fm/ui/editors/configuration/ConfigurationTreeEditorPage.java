@@ -1518,7 +1518,7 @@ public abstract class ConfigurationTreeEditorPage extends EditorPart implements 
 			root.setData(rootFeature);
 			parentElements.add(root);
 
-			TreeItemVisibilityWrapper visibilityTreeItem = new TreeItemVisibilityWrapper(null, root);
+			TreeItemVisibilityWrapper visibilityTreeItem = new TreeItemVisibilityWrapper(tree, root);
 			itemMap.put(rootFeature.getName(), visibilityTreeItem);
 
 			refreshItems(Arrays.asList(visibilityTreeItem));

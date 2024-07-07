@@ -5,6 +5,7 @@ import java.util.Collection;
 
 import de.ovgu.featureide.fm.ui.utils.TreeItemData;
 
+import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
 
 /**
@@ -14,19 +15,31 @@ import org.eclipse.swt.widgets.TreeItem;
  */
 public class TreeItemVisibilityWrapper {
 
+	private boolean shouldBeVisible;
 	private TreeItemData backupItemData;
 	private TreeItem shownTreeItem;
+	private final Tree parentTree;
 	private final TreeItemVisibilityWrapper parent;
 	private final Collection<TreeItemVisibilityWrapper> children;
 
+	public TreeItemVisibilityWrapper(Tree parentTree, TreeItem treeItem) {
+		this.parent = null;
+		this.parentTree = parentTree;
+		this.children = new ArrayList<TreeItemVisibilityWrapper>();
+		this.shownTreeItem = treeItem;
+		this.shouldBeVisible = true;
+		createBackupFromTreeItem(treeItem);
+	}
+
 	public TreeItemVisibilityWrapper(TreeItemVisibilityWrapper parent, TreeItem treeItem) {
+		this.parentTree = null;
 		this.parent = parent;
 		if (parent != null) {
 			this.parent.children.add(this);
 		}
 		this.children = new ArrayList<TreeItemVisibilityWrapper>();
-
 		this.shownTreeItem = treeItem;
+		this.shouldBeVisible = true;
 		createBackupFromTreeItem(treeItem);
 	}
 
@@ -34,19 +47,36 @@ public class TreeItemVisibilityWrapper {
 		return shownTreeItem;
 	}
 
+	/**
+	 * Returns if this item is visible. This also returns true,
+	 * if this item is said to be visible but it's parent item isn't.
+	 * @return True, if this item is visible, otherwise False.
+	 */
 	public boolean isVisible() {
-		return (shownTreeItem != null) && (!shownTreeItem.isDisposed());
+		return shouldBeVisible;
 	}
 
+	/**
+	 * Sets the visibility of this item. If it's parent isn't visible,
+	 * it won't be displayed on the screen but it will remember this call
+	 * for when its parent is set visible.
+	 * @param visible
+	 */
 	public void setVisible(boolean visible) {
-		if (this.isVisible() == visible) {
+		if (isVisible() == visible) {
 			return;
 		}
+		shouldBeVisible = visible;
 
 		if (visible) {
-			createShownTreeItemFromBackup();
-			for (TreeItemVisibilityWrapper child : children) {
-				child.setVisible(true);
+			// If the parent isn't visible, this item cannot be visible either
+			if (((parent != null) && parent.isVisible()) || (parentTree != null)) {
+				createShownTreeItemFromBackup();
+				for (TreeItemVisibilityWrapper child : children) {
+					if (child.shouldBeVisible) {
+						child.createShownTreeItemFromBackup();
+					}
+				}
 			}
 		} else {
 			shownTreeItem.dispose();
@@ -54,7 +84,11 @@ public class TreeItemVisibilityWrapper {
 	}
 
 	private void createShownTreeItemFromBackup() {
-		shownTreeItem = new TreeItem(parent.getTreeItem(), 0);
+		if (parent != null) {
+			shownTreeItem = new TreeItem(parent.getTreeItem(), 0);
+		} else {
+			shownTreeItem = new TreeItem(parentTree, 0);
+		}
 		updateShownItem();
 	}
 
