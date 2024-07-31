@@ -24,9 +24,11 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.Stack;
 
 import org.prop4j.Node;
 import org.prop4j.Not;
+import org.prop4j.VisibleIf;
 
 import de.ovgu.featureide.fm.core.analysis.cnf.CNF;
 import de.ovgu.featureide.fm.core.analysis.cnf.ClauseList;
@@ -202,6 +204,10 @@ public final class ConstraintTextValidator {
 					"Checking constraint...\nThis may take a while. Although it is not recommended, you can save the unchecked constraint.",
 					DialogState.SAVE_CHANGES_DONT_MIND));
 
+			if (!satisfiesVisibilityConstraintAnalysis()) {
+				return null;
+			}
+
 			monitor.checkCancel();
 			final CNF constraintCNF = Nodes.convert(constraintNode);
 			monitor.checkCancel();
@@ -277,6 +283,12 @@ public final class ConstraintTextValidator {
 				break;
 			default:
 				throw new AssertionError(satResult);
+			}
+
+			// The following checks don't work yet for visibility constraints, so we end early
+			if (constraintNode instanceof VisibleIf) {
+				onUpdate.accept(new ValidationMessage("Constraint successfully checked.\n", DialogState.SAVE_CHANGES_ENABLED));
+				return null;
 			}
 
 			monitor.checkCancel();
@@ -377,6 +389,46 @@ public final class ConstraintTextValidator {
 			return null;
 		}
 
+		public boolean satisfiesVisibilityConstraintAnalysis() {
+			boolean containsVisibleIf = false;
+			// The topmost node can be a VisibleIf node, but it's children shouldn't be
+			Node[] nodeChildren = constraintNode.getChildren();
+			if (nodeChildren != null) {
+				for (Node childNode : nodeChildren) {
+					containsVisibleIf = nodeContainsVisibleIfNode(childNode);
+					if (containsVisibleIf) {
+						break;
+					}
+				}
+			}
+
+			if (containsVisibleIf) {
+				onUpdate.accept(new ValidationMessage("VisibleIf operator can only be used as the outermost operator. Adding some parentheses may help resolve this error.\n", Problem.Severity.ERROR, DialogState.SAVE_CHANGES_DISABLED));
+				return false;
+			}
+
+			return true;
+		}
+
+		public boolean nodeContainsVisibleIfNode(Node nodeToCheck) {
+			Stack<Node> nodeStack = new Stack<Node>();
+			nodeStack.push(nodeToCheck);
+			while (!nodeStack.empty()) {
+				Node node = nodeStack.pop();
+				if (node instanceof VisibleIf) {
+					return true;
+				}
+
+				Node[] nodeChildren = node.getChildren();
+				if (nodeChildren != null) {
+					for (Node childNode : nodeChildren) {
+						nodeStack.push(childNode);
+					}
+				}
+			}
+
+			return false;
+		}
 	}
 
 }

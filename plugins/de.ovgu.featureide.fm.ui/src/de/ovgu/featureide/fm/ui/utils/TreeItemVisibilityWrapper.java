@@ -83,6 +83,20 @@ public class TreeItemVisibilityWrapper {
 		}
 	}
 
+	public void refresh() {
+		// By hiding and then re-showing the item it and its children
+		// are newly created => they are refreshed
+		// Non-visible items don't need to be refreshed
+		if (isVisible()) {
+			shownTreeItem.dispose();
+			createShownTreeItemFromBackup();
+
+			for (TreeItemVisibilityWrapper child : children) {
+				child.refresh();
+			}
+		}
+	}
+
 	private void createShownTreeItemFromBackup() {
 		if (parent != null) {
 			shownTreeItem = new TreeItem(parent.getTreeItem(), 0);

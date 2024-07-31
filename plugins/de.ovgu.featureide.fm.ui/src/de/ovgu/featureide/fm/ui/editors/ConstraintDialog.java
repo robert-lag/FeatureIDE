@@ -104,6 +104,7 @@ import org.prop4j.Node;
 import org.prop4j.NodeReader;
 import org.prop4j.NodeWriter;
 
+import de.ovgu.featureide.fm.core.base.impl.Constraint;
 import de.ovgu.featureide.fm.core.Operator;
 import de.ovgu.featureide.fm.core.base.FeatureUtils;
 import de.ovgu.featureide.fm.core.base.IConstraint;

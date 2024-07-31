@@ -37,7 +37,9 @@ public class VisibleIf extends Node implements Cloneable {
 
     @Override
     protected Node eliminateNonCNFOperators(Node[] newChildren) {
-        return this;
+        // VisibleIf behaves logically like an Implies node
+        // and (A => B) is logically equivalent to (!A or B)
+        return new Or(new Not(newChildren[0]), newChildren[1]);
     }
 
     @Override
@@ -58,7 +60,7 @@ public class VisibleIf extends Node implements Cloneable {
 
     @Override
     public Node clone() {
-        return new Implies(children[0].clone(), children[1].clone());
+        return new VisibleIf(children[0].clone(), children[1].clone());
     }
 
     @Override

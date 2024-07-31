@@ -23,6 +23,7 @@ package de.ovgu.featureide.fm.ui.editors.featuremodel.operations;
 import static de.ovgu.featureide.fm.core.localization.StringTable.CREATE_CONSTRAINT;
 
 import org.prop4j.Node;
+import org.prop4j.VisibleIf;
 
 import de.ovgu.featureide.fm.core.base.IConstraint;
 import de.ovgu.featureide.fm.core.base.IFeatureModel;
@@ -44,6 +45,7 @@ public class CreateConstraintOperation extends AbstractFeatureModelOperation {
 
 	private final Node node;
 	private final String description;
+	private final boolean isVisibilityConstraint;
 
 	private int constraintCount = -1;
 
@@ -56,21 +58,34 @@ public class CreateConstraintOperation extends AbstractFeatureModelOperation {
 		super(featureModelManager, CREATE_CONSTRAINT);
 		this.node = node;
 		this.description = description;
+		this.isVisibilityConstraint = node instanceof VisibleIf;
 	}
 
 	@Override
 	protected FeatureIDEEvent operation(IFeatureModel featureModel) {
-		constraintCount = featureModel.getConstraintCount();
 		final IConstraint constraint = FMFactoryManager.getInstance().getFactory(featureModel).createConstraint(featureModel, node);
 		constraint.setDescription(description);
-		featureModel.addConstraint(constraint, constraintCount);
+
+		if (isVisibilityConstraint) {
+			constraintCount = featureModel.getVisibilityConstraintCount();
+			featureModel.addVisibilityConstraint(constraint, constraintCount);
+		} else {
+			constraintCount = featureModel.getConstraintCount();
+			featureModel.addConstraint(constraint, constraintCount);
+		}
 		return new FeatureIDEEvent(featureModel, EventType.CONSTRAINT_ADD, null, constraint);
 	}
 
 	@Override
 	protected FeatureIDEEvent inverseOperation(IFeatureModel featureModel) {
-		final IConstraint constraint = featureModel.getConstraints().get(constraintCount);
-		featureModel.removeConstraint(constraintCount);
+		final IConstraint constraint;
+		if (isVisibilityConstraint) {
+			constraint = featureModel.getVisibilityConstraints().get(constraintCount);
+			featureModel.removeVisibilityConstraint(constraintCount);
+		} else {
+			constraint = featureModel.getConstraints().get(constraintCount);
+			featureModel.removeConstraint(constraintCount);
+		}
 		return new FeatureIDEEvent(featureModel, EventType.CONSTRAINT_DELETE, constraint, null);
 	}
 

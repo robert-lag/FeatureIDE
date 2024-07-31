@@ -75,24 +75,24 @@ public class NodeWriter {
 	 * characters, do not use them for editing or serialization; in these cases, instead use {@link #textualSymbols long} or {@link #shortSymbols short textual
 	 * symbols} respectively.
 	 */
-	public static final String[] logicalSymbols = new String[] { "\u00AC", "\u2227", "\u2228", "\u21D2", "\u21D4", ", ", "choose", "atleast", "atmost", "vif" };
+	public static final String[] logicalSymbols = new String[] { "\u00AC", "\u2227", "\u2228", "\u21D2", "\u21D4", "vif", ", ", "choose", "atleast", "atmost" };
 	/**
 	 * Symbols for a long textual representation. These are best used for editing by the user due to simplicity and ease of handling. Use {@link #logicalSymbols
 	 * logical symbols} for displaying to the user and {@link #shortSymbols short textual symbols} for serialization.
 	 */
-	public static final String[] textualSymbols = new String[] { "not", "and", "or", "implies", "iff", ", ", "choose", "atleast", "atmost", "visibleIf" };
+	public static final String[] textualSymbols = new String[] { "not", "and", "or", "implies", "iff", "visibleif", ", ", "choose", "atleast", "atmost" };
 	/**
 	 * Symbols for a short textual representation. Best used for serialization since they fall in the ASCII range but are still relatively short. Use
 	 * {@link #logicalSymbols} for displaying to the user and {@link #textualSymbols long textual symbols} for editing by the user.
 	 */
-	public static final String[] shortSymbols = new String[] { "-", "&", "|", "=>", "<=>", ", ", "choose", "atleast", "atmost", "vif" };
+	public static final String[] shortSymbols = new String[] { "-", "&", "|", "=>", "<=>", "vif", ", ", "choose", "atleast", "atmost" };
 	/**
 	 * Symbols for a representation like in Java. These are inherently incomplete and should only be used if absolutely necessary.
 	 */
-	public static final String[] javaSymbols = new String[] { "!", "&&", "||", noSymbol, "==", ", ", noSymbol, noSymbol, noSymbol, noSymbol };
+	public static final String[] javaSymbols = new String[] { "!", "&&", "||", noSymbol, "==", noSymbol, ", ", noSymbol, noSymbol, noSymbol };
 
 	public static final String[] latexSymbols =
-		new String[] { "\\lnot", "\\land", "\\lor", "\\Rightarrow", "\\Leftrightarrow", ", ", "choose", "atleast", "atmost", "vif" };
+		new String[] { "\\lnot", "\\land", "\\lor", "\\Rightarrow", "\\Leftrightarrow", "vif", ", ", "choose", "atleast", "atmost" };
 
 	/** The propositional node to convert. */
 	private final Node root;
@@ -373,7 +373,7 @@ public class NodeWriter {
 				sb.append('(');
 				nodeToString(children[0], node.getClass(), sb, depth);
 				for (int i = 1; i < children.length; i++) {
-					sb.append(getSymbols()[5]);
+					sb.append(getSymbols()[6]);
 					nodeToString(children[i], node.getClass(), sb, depth);
 				}
 				sb.append(')');
@@ -439,7 +439,7 @@ public class NodeWriter {
 		if (nodeClass.equals(Equals.class)) {
 			return 2;
 		}
-		if (nodeClass.equals(Implies.class) || nodeClass.equals(VisibleIf.class)) {
+		if (nodeClass.equals(Implies.class)) {
 			return 3;
 		}
 		if (nodeClass.equals(Or.class)) {
@@ -447,6 +447,9 @@ public class NodeWriter {
 		}
 		if (nodeClass.equals(And.class)) {
 			return 5;
+		}
+		if (nodeClass.equals(VisibleIf.class)) {
+			return 6;
 		}
 		throw new IllegalArgumentException("Unrecognized node type: " + nodeClass);
 	}
@@ -474,17 +477,17 @@ public class NodeWriter {
 		if (node instanceof Equals) {
 			return getSymbols()[4];
 		}
+		if (node instanceof VisibleIf) {
+			return getSymbols()[5];
+		}
 		if (node instanceof Choose) {
-			return getSymbols()[6] + ((Choose) node).n;
+			return getSymbols()[7] + ((Choose) node).n;
 		}
 		if (node instanceof AtLeast) {
-			return getSymbols()[7] + ((AtLeast) node).min;
+			return getSymbols()[8] + ((AtLeast) node).min;
 		}
 		if (node instanceof AtMost) {
-			return getSymbols()[8] + ((AtMost) node).max;
-		}
-		if (node instanceof VisibleIf) {
-			return getSymbols()[9];
+			return getSymbols()[9] + ((AtMost) node).max;
 		}
 		throw new IllegalArgumentException("Unrecognized node type: " + node.getClass());
 	}

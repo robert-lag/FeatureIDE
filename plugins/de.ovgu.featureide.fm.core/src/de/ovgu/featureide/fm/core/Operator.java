@@ -29,7 +29,7 @@ import java.util.regex.Pattern;
  */
 public class Operator {
 
-	public static final String[] NAMES = { "Not", "And", "Or", "Implies", "Iff", "(", ")" };
+	public static final String[] NAMES = { "Not", "And", "Or", "Implies", "Iff", "(", ")", "VisibleIf" };
 
 	public static final String REGEX;
 	static {
