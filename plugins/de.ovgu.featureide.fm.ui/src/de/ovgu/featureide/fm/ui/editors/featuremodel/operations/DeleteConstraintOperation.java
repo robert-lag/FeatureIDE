@@ -22,6 +22,8 @@ package de.ovgu.featureide.fm.ui.editors.featuremodel.operations;
 
 import static de.ovgu.featureide.fm.core.localization.StringTable.DELETE_CONSTRAINT;
 
+import org.prop4j.VisibleIf;
+
 import de.ovgu.featureide.fm.core.base.IConstraint;
 import de.ovgu.featureide.fm.core.base.IFeatureModel;
 import de.ovgu.featureide.fm.core.base.event.FeatureIDEEvent;
@@ -41,17 +43,23 @@ public class DeleteConstraintOperation extends AbstractFeatureModelOperation {
 
 	public static final String ID = ID_PREFIX + "DeleteConstraintOperation";
 
+	private final boolean isVisibilityConstraint;
 	private final IConstraint constraint;
 	private int oldConstraintIndex;
 
 	public DeleteConstraintOperation(IConstraint constraint, IFeatureModelManager featureModelManager) {
 		super(featureModelManager, DELETE_CONSTRAINT);
 		this.constraint = constraint;
+		this.isVisibilityConstraint = constraint.getNode() instanceof VisibleIf;
 	}
 
 	@Override
 	protected FeatureIDEEvent firstOperation(IFeatureModel featureModel) {
-		oldConstraintIndex = featureModel.getConstraintIndex(constraint);
+		if (isVisibilityConstraint) {
+			oldConstraintIndex = featureModel.getVisibilityConstraintIndex(constraint);
+		} else {
+			oldConstraintIndex = featureModel.getConstraintIndex(constraint);
+		}
 		return operation(featureModel);
 	}
 
@@ -59,8 +67,14 @@ public class DeleteConstraintOperation extends AbstractFeatureModelOperation {
 	protected FeatureIDEEvent operation(IFeatureModel featureModel) {
 		if (oldConstraintIndex != -1) {
 			// The deleted constraint, may be different from oldConstraint if this is a redo operation
-			final IConstraint deletedConstraint = featureModel.getConstraints().get(oldConstraintIndex);
-			featureModel.removeConstraint(oldConstraintIndex);
+			final IConstraint deletedConstraint;
+			if (isVisibilityConstraint) {
+				deletedConstraint = featureModel.getVisibilityConstraints().get(oldConstraintIndex);
+				featureModel.removeVisibilityConstraint(oldConstraintIndex);
+			} else {
+				deletedConstraint = featureModel.getConstraints().get(oldConstraintIndex);
+				featureModel.removeConstraint(oldConstraintIndex);
+			}
 			return new FeatureModelOperationEvent(ID, EventType.CONSTRAINT_DELETE, featureModel, deletedConstraint, null);
 		}
 		return new FeatureModelOperationEvent(ID, EventType.CONSTRAINT_DELETE, featureModel, null, null);
@@ -70,7 +84,11 @@ public class DeleteConstraintOperation extends AbstractFeatureModelOperation {
 	protected FeatureIDEEvent inverseOperation(IFeatureModel featureModel) {
 		if (oldConstraintIndex != -1) {
 			final IConstraint constraint = FMFactoryManager.getInstance().getFactory(featureModel).copyConstraint(featureModel, this.constraint);
-			featureModel.addConstraint(constraint, oldConstraintIndex);
+			if (isVisibilityConstraint) {
+				featureModel.addVisibilityConstraint(constraint, oldConstraintIndex);
+			} else {
+				featureModel.addConstraint(constraint, oldConstraintIndex);
+			}
 			return new FeatureModelOperationEvent(ID, EventType.CONSTRAINT_ADD, featureModel, null, constraint);
 		}
 		return new FeatureModelOperationEvent(ID, EventType.CONSTRAINT_ADD, featureModel, null, null);
