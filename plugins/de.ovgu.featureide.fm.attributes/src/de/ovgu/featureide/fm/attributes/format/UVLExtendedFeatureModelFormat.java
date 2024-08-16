@@ -75,7 +75,8 @@ public class UVLExtendedFeatureModelFormat extends UVLFeatureModelFormat {
 	@Override
 	protected void parseAttribute(MultiFeatureModel fm, MultiFeature feature, String attributeKey, Object attributeValue) {
 		// call super.parseAttribute to parse the constraints that are written under a feature
-		if (attributeKey.equals("constraint") || attributeKey.equals("constraints")) {
+		if (attributeKey.equals("constraint") || attributeKey.equals("constraints") ||
+				attributeKey.equals("visibility-constraint") || attributeKey.equals("visibility-constraints")) {
 			super.parseAttribute(fm, feature, attributeKey, attributeValue);
 		} else if (!attributeKey.equals("abstract") && !attributeKey.equals(EXTENDED_ATTRIBUTE_NAME)) {
 			ExtendedMultiFeature extendedFeature = (ExtendedMultiFeature) feature;

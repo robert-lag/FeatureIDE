@@ -258,10 +258,11 @@ public class UVLFeatureModelFormat extends AFeatureModelFormat {
 	}
 
 	protected void parseAttribute(MultiFeatureModel fm, MultiFeature feature, String attributeKey, Object attributeValue) {
-		if (attributeValue instanceof Constraint) {
+		if (attributeValue instanceof VisibleIfConstraint) {
+			parseVisibilityConstraint(fm, (Constraint) attributeValue);
+		} else if (attributeValue instanceof Constraint) {
 			parseConstraint(fm, (Constraint) attributeValue);
 		}
-
 	}
 
 	private void parseConstraints(MultiFeatureModel fm) {
