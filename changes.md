@@ -86,13 +86,21 @@ the respective context actions in this diagram.
 
 ### UVL parser
 
-The UVL parser is split up between the ANTLR4 code and the wrapper code (in
-Java) that makes it easier to access the parsed code.
+The UVL parser is written in ANTLR4, a tool that's used to easily describe the
+grammatics of a particular language (in our case UVL) and generate equivalent
+code for parsing it in a programming language (e.g. java).
+
+It also contains some wrapper classes around the generated code from ANTLR4,
+which makes it easier for the FeatureIDE to interact with it.
 
 #### ANTLR4 code
 
-To the ANTLR4 code (`uvl/UVLBase.g4`) was added the functionality of parsing
-visibility constraints in a separate section and as a feature attribute.
+To make it possible that the parser can detect the visibility constraints, I
+adjusted the file `/uvl/UVLBase.g4` which contains the grammatical definition
+of the UVL language. Those changes included the definition of a few
+non-terminals (e.g. `visibilityConstraints`, `visibilityConstraintLine`, etc.)
+and their correct integration with existing ones, so that the parser can detect
+the new `visibility-constraints` section in UVL files.
 
 #### Wrapper code
 
@@ -110,8 +118,18 @@ to fill this feature model with data from the `*.uvl` file.
 
 ### FeatureIDE
 
-In the FeatureIDE more things had to be adjusted to make the visibility
-constraints work as expected:
+#### General
+
+The source code of the FeatureIDE is split between many different projects. The
+most important ones for my changes were `de.ovgu.featureide.fm.core` and
+`de.ovgu.featureide.fm.ui`.
+
+The implementation of the visibility constraints is very similar from the normal
+constraints as both are represented by logical statements, so much of the code
+concerning these 2 looks very similar. The difference between those 2 though is
+how they are handled by the program. Whereas the normal constraints are used to
+see if the model is satisfiable, the visibility constraints are used to set the
+the visibility of features in the configuration editor.
 
 #### Parsing of VisibleIfConstraints
 
