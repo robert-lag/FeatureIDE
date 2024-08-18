@@ -1,5 +1,8 @@
 # FeatureIDE
 
+This is a fork of the main repository. To see an overview of the changes of this
+fork see [changes.md](./changes.md).
+
 **An extensible framework for feature-oriented software development**
 
 **[Visit our website](https://featureide.github.io)** for more information about features, news, and downloads.
