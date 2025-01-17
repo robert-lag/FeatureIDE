@@ -1031,18 +1031,26 @@ public abstract class ConfigurationTreeEditorPage extends EditorPart implements 
 	protected void updateVisibilityOfAllItems() {
 		List<IConstraint> visibilityConstraints = getVisibilityConstraints();
 		for (IConstraint constraint : visibilityConstraints) {
-			// Get tree item whose visibility should be updated
 			VisibleIf vifNode = (VisibleIf) constraint.getNode();
+
+			// Get tree item whose visibility should be updated
 			Literal literalNode = (Literal) vifNode.getChildren()[0];
 			String literalFeatureName = literalNode.getContainedFeatures().get(0);
 			TreeItemVisibilityWrapper featureTreeItem = itemMap.get(literalFeatureName);
 
-			// Set the visibility
+			// Get, if the item should be visible
 			Node rightSideOfImplies = vifNode.getChildren()[1];
 			final Set<Object> keys = rightSideOfImplies.getUniqueVariables();
 			final Map<Object, Boolean> assignment = getCurrentStateOfFeatures(keys);
 			boolean shouldBeVisible = rightSideOfImplies.getValue(assignment);
+
 			if (featureTreeItem != null) {
+				// Mandatory features cannot be hidden
+				if (featureTreeItem.isMandatory()) {
+					shouldBeVisible = true;
+				}
+
+				// Set the visibility
 				featureTreeItem.setVisible(shouldBeVisible);
 			}
 		}
@@ -1053,8 +1061,15 @@ public abstract class ConfigurationTreeEditorPage extends EditorPart implements 
 		for (final T featureName : featureNames) {
 			TreeItemVisibilityWrapper currentTreeItem = itemMap.get(featureName.toString());
 			boolean valueOfItem = false;
-			if ((currentTreeItem != null) && !currentTreeItem.getTreeItem().isDisposed()) {
-				valueOfItem = currentTreeItem.getTreeItem().getChecked();
+			if (currentTreeItem != null) {
+				if (!currentTreeItem.getTreeItem().isDisposed()) {
+					valueOfItem = currentTreeItem.getTreeItem().getChecked();
+				}
+
+				// A mandatory item is always checked
+				if (currentTreeItem.isMandatory()) {
+					valueOfItem = true;
+				}
 			}
 			assignment.put(featureName, valueOfItem);
 		}
@@ -1539,8 +1554,8 @@ public abstract class ConfigurationTreeEditorPage extends EditorPart implements 
 
 				if (childNode != null) {
 					SelectableFeature parentFeature = (SelectableFeature) parent.getData();
-					TreeItemVisibilityWrapper parentVisiblityItem = itemMap.get(parentFeature.getName());
-					TreeItemVisibilityWrapper visibilityTreeItem = new TreeItemVisibilityWrapper(parentVisiblityItem, childNode);
+					TreeItemVisibilityWrapper parentVisibilityItem = itemMap.get(parentFeature.getName());
+					TreeItemVisibilityWrapper visibilityTreeItem = new TreeItemVisibilityWrapper(parentVisibilityItem, childNode);
 					itemMap.put(currentFeature.getName(), visibilityTreeItem);
 					items.add(visibilityTreeItem);
 				}

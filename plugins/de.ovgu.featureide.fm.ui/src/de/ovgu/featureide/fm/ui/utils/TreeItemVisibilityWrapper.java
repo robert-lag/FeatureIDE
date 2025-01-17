@@ -3,6 +3,7 @@ package de.ovgu.featureide.fm.ui.utils;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import de.ovgu.featureide.fm.core.configuration.SelectableFeature;
 import de.ovgu.featureide.fm.ui.utils.TreeItemData;
 
 import org.eclipse.swt.widgets.Tree;
@@ -45,6 +46,16 @@ public class TreeItemVisibilityWrapper {
 
 	public TreeItem getTreeItem() {
 		return shownTreeItem;
+	}
+
+	/**
+	 * Returns if this item is mandatory. If it is, then
+	 * it is guaranteed to be always visible and checked.
+	 * @return True, if this item is mandatory, otherwise False.
+	 */
+	public boolean isMandatory() {
+		final SelectableFeature selectableFeature = (SelectableFeature) backupItemData.getData();
+		return selectableFeature.getFeature().getStructure().isMandatory();
 	}
 
 	/**
