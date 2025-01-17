@@ -1053,7 +1053,7 @@ public abstract class ConfigurationTreeEditorPage extends EditorPart implements 
 		for (final T featureName : featureNames) {
 			TreeItemVisibilityWrapper currentTreeItem = itemMap.get(featureName.toString());
 			boolean valueOfItem = false;
-			if (currentTreeItem != null) {
+			if ((currentTreeItem != null) && !currentTreeItem.getTreeItem().isDisposed()) {
 				valueOfItem = currentTreeItem.getTreeItem().getChecked();
 			}
 			assignment.put(featureName, valueOfItem);

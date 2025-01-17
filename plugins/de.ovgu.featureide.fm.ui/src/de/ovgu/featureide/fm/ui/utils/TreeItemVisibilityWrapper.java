@@ -140,7 +140,7 @@ public class TreeItemVisibilityWrapper {
 	@Override
 	public String toString() {
 		String parentText = "<null>";
-		if ((parent != null) && (parent.getTreeItem() != null)) {
+		if ((parent != null) && (parent.getTreeItem() != null) && !parent.getTreeItem().isDisposed()) {
 			parentText = parent.getTreeItem().getText();
 		}
 		return "TreeItemVisibilityWrapper{" +
