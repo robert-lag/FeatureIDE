@@ -1044,13 +1044,8 @@ public abstract class ConfigurationTreeEditorPage extends EditorPart implements 
 			final Map<Object, Boolean> assignment = getCurrentStateOfFeatures(keys);
 			boolean shouldBeVisible = rightSideOfImplies.getValue(assignment);
 
+			// Set the visibility
 			if (featureTreeItem != null) {
-				// Mandatory features cannot be hidden
-				if (featureTreeItem.isMandatory()) {
-					shouldBeVisible = true;
-				}
-
-				// Set the visibility
 				featureTreeItem.setVisible(shouldBeVisible);
 			}
 		}
