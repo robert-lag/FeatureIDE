@@ -88,6 +88,7 @@ public class TreeItemVisibilityWrapper {
 						child.createShownTreeItemFromBackup();
 					}
 				}
+				shownTreeItem.setExpanded(true);
 			}
 		} else {
 			shownTreeItem.dispose();
