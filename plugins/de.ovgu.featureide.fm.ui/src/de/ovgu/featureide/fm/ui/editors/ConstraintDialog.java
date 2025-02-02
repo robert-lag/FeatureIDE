@@ -736,7 +736,7 @@ public class ConstraintDialog implements GUIDefaults {
 		gridData.grabExcessHorizontalSpace = true;
 		buttonGroup.setLayoutData(gridData);
 		final GridLayout buttonGroupLayout = new GridLayout();
-		buttonGroupLayout.numColumns = 7;
+		buttonGroupLayout.numColumns = 8;
 		buttonGroup.setLayout(buttonGroupLayout);
 
 		for (int i = 0; i < Operator.NAMES.length; i++) {
