@@ -205,6 +205,7 @@ public abstract class ConfigurationTreeEditorPage extends EditorPart implements 
 	protected int maxGroup = 0;
 	protected boolean useGroups = false;
 	protected boolean useRecommendation = false;
+	protected boolean useVisibilityConstraintsFilter = true;
 
 	protected Tree tree;
 
@@ -212,6 +213,7 @@ public abstract class ConfigurationTreeEditorPage extends EditorPart implements 
 
 	private Label infoLabel;
 	private ToolItem resolveButton;
+	private ToolItem visConstraintsToggle;
 
 	protected final LinkedHashMap<String, TreeItemVisibilityWrapper> itemMap = new LinkedHashMap<>();
 
@@ -411,6 +413,29 @@ public abstract class ConfigurationTreeEditorPage extends EditorPart implements 
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				resetManualSelection();
+			}
+
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {}
+		});
+
+		new ToolItem(toolbar, SWT.SEPARATOR);
+
+		// expand all features field
+		visConstraintsToggle = new ToolItem(toolbar, SWT.PUSH);
+		visConstraintsToggle.setImage(FMPropertyManager.IMAGE_EYE);
+		visConstraintsToggle.setToolTipText("Toggle Visibility Constraints Filter");
+		visConstraintsToggle.addSelectionListener(new SelectionListener() {
+
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				useVisibilityConstraintsFilter = !useVisibilityConstraintsFilter;
+				updateVisibilityOfAllItems();
+				if (useVisibilityConstraintsFilter) {
+					visConstraintsToggle.setImage(FMPropertyManager.IMAGE_EYE);
+				} else {
+					visConstraintsToggle.setImage(FMPropertyManager.IMAGE_EYE_OFF);
+				}
 			}
 
 			@Override
@@ -1039,10 +1064,15 @@ public abstract class ConfigurationTreeEditorPage extends EditorPart implements 
 			TreeItemVisibilityWrapper featureTreeItem = itemMap.get(literalFeatureName);
 
 			// Get, if the item should be visible
-			Node rightSideOfImplies = vifNode.getChildren()[1];
-			final Set<Object> keys = rightSideOfImplies.getUniqueVariables();
-			final Map<Object, Boolean> assignment = getCurrentStateOfFeatures(keys);
-			boolean shouldBeVisible = rightSideOfImplies.getValue(assignment);
+			boolean shouldBeVisible;
+			if (useVisibilityConstraintsFilter) {
+				Node rightSideOfImplies = vifNode.getChildren()[1];
+				final Set<Object> keys = rightSideOfImplies.getUniqueVariables();
+				final Map<Object, Boolean> assignment = getCurrentStateOfFeatures(keys);
+				shouldBeVisible = rightSideOfImplies.getValue(assignment);
+			} else {
+				shouldBeVisible = true;
+			}
 
 			// Set the visibility
 			if (featureTreeItem != null) {

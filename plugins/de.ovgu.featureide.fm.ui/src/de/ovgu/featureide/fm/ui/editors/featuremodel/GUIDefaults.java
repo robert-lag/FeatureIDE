@@ -195,6 +195,8 @@ public interface GUIDefaults {
 	public static final Image FM_WARNING = FMUIPlugin.getImage("fmwarning.png");
 	public static final Image FM_INFO = FMUIPlugin.getImage("fminfo.png");
 
+	public static final Image IMAGE_EYE = FMUIPlugin.getImage("eye.png");
+	public static final Image IMAGE_EYE_OFF = FMUIPlugin.getImage("eye-off.png");
 	public static final Image IMAGE_EXPAND = FMUIPlugin.getImage("expand.gif");
 	public static final Image IMAGE_COLLAPSE = FMUIPlugin.getImage("collapse.gif");
 	public static final Image IMAGE_AUTOEXPAND_GROUP = FMUIPlugin.getImage("tree02.png");
