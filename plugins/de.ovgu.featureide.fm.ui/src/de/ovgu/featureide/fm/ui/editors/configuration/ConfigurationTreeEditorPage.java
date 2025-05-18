@@ -1053,6 +1053,11 @@ public abstract class ConfigurationTreeEditorPage extends EditorPart implements 
 		}
 	}
 
+	protected Void updateVisibilityOfAllItems(final Display currentDisplay) {
+		currentDisplay.syncExec(this::updateVisibilityOfAllItems);
+		return null;
+	}
+
 	protected void updateVisibilityOfAllItems() {
 		List<IConstraint> visibilityConstraints = getVisibilityConstraints();
 		for (IConstraint constraint : visibilityConstraints) {
@@ -1361,6 +1366,7 @@ public abstract class ConfigurationTreeEditorPage extends EditorPart implements 
 		}
 		sequence.addJob(LongRunningWrapper.getRunner(monitor -> resetSnapshot(configurationManager)));
 		sequence.addJob(LongRunningWrapper.getRunner(monitor -> updateInfoLabel(currentDisplay, propagator)));
+		sequence.addJob(LongRunningWrapper.getRunner(monitor -> updateVisibilityOfAllItems(currentDisplay)));
 		final IRunner<Boolean> runner = LongRunningWrapper.getRunner(sequence);
 		runner.addJobFinishedListener((finishedJob) -> {
 			currentDisplay.syncExec(() -> configurationManager.fireEvent(new FeatureIDEEvent(null, EventType.FEATURE_SELECTION_CHANGED)));
@@ -1547,7 +1553,7 @@ public abstract class ConfigurationTreeEditorPage extends EditorPart implements 
 				}
 			}
 		}
-		currentDisplay.syncExec(() -> updateVisibilityOfAllItems());
+		currentDisplay.syncExec(this::updateVisibilityOfAllItems);
 		return null;
 	}
 
