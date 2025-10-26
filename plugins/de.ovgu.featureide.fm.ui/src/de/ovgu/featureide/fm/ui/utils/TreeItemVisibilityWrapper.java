@@ -59,17 +59,16 @@ public class TreeItemVisibilityWrapper {
 	}
 
 	/**
-	 * Returns if this item is visible. This also returns true,
-	 * if this item is said to be visible but it's parent item isn't.
+	 * Returns if this item is currently visible in the UI.
 	 * @return True, if this item is visible, otherwise False.
 	 */
 	public boolean isVisible() {
-		return shouldBeVisible;
+		return !shownTreeItem.isDisposed();
 	}
 
 	/**
 	 * Sets the visibility of this item. If it's parent isn't visible,
-	 * it won't be displayed on the screen but it will remember this call
+	 * it won't be displayed on the screen, but it will remember this call
 	 * for when its parent is set visible.
 	 * @param visible
 	 */
@@ -80,17 +79,19 @@ public class TreeItemVisibilityWrapper {
 		shouldBeVisible = visible;
 
 		if (visible) {
+            // Set visible
 			// If the parent isn't visible, this item cannot be visible either
 			if (((parent != null) && parent.isVisible()) || (parentTree != null)) {
 				createShownTreeItemFromBackup();
+                shownTreeItem.setExpanded(true);
 				for (TreeItemVisibilityWrapper child : children) {
 					if (child.shouldBeVisible) {
-						child.createShownTreeItemFromBackup();
+                        child.setVisible(true);
 					}
 				}
-				shownTreeItem.setExpanded(true);
 			}
 		} else {
+            // Set invisible
 			shownTreeItem.dispose();
 		}
 	}
